@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battle Block Star</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a1a;
+      color: #ccc;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #menu {
+      text-align: center;
+      padding: 40px;
+    }
+    #menu h1 {
+      font-size: 36px;
+      color: #88aaff;
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px #4466ff;
+    }
+    #menu p {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 13px;
+    }
+    .menu-card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a5a;
+      border-radius: 8px;
+      padding: 24px 40px;
+      margin-bottom: 20px;
+    }
+    .menu-card h2 {
+      color: #88aaff;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    select {
+      background: #0a0a1a;
+      color: #ccc;
+      border: 1px solid #4488ff;
+      padding: 8px 16px;
+      font-family: monospace;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    select option { background: #0a0a1a; }
+    #startBtn {
+      background: #1a3a8a;
+      color: #88aaff;
+      border: 2px solid #4488ff;
+      padding: 12px 40px;
+      font-size: 18px;
+      font-family: monospace;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: block;
+      margin: 0 auto;
+    }
+    #startBtn:hover {
+      background: #2244aa;
+      box-shadow: 0 0 20px #4488ff44;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 20px;
+      font-size: 12px;
+      text-align: left;
+    }
+    .ctrl-key { color: #88aaff; }
+    .ctrl-desc { color: #888; }
+    canvas {
+      display: none;
+      image-rendering: pixelated;
+    }
+    .special-info {
+      font-size: 11px;
+      color: #666;
+      margin-top: 8px;
+    }
+    .special-info span { color: #aa66ff; }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <h1>⚔ BATTLE BLOCK STAR ⚔</h1>
+    <p>테트리스 로그라이크 1vs1 대전 액션</p>
+
+    <div class="menu-card">
+      <h2>▶ AI 난이도 선택</h2>
+      <select id="aiSelect">
+        <option value="balanced">균형형 (Balanced)</option>
+        <option value="fast">속사형 (Fast Shot)</option>
+        <option value="tetris">뚝심형 (Tetris Only)</option>
+      </select>
+    </div>
+
+    <div class="menu-card">
+      <h2>▶ 조작법</h2>
+      <div class="controls-grid">
+        <span class="ctrl-key">← →</span><span class="ctrl-desc">이동</span>
+        <span class="ctrl-key">↑ / X</span><span class="ctrl-desc">시계방향 회전</span>
+        <span class="ctrl-key">C</span><span class="ctrl-desc">반시계 회전</span>
+        <span class="ctrl-key">↓</span><span class="ctrl-desc">소프트 드롭</span>
+        <span class="ctrl-key">Space</span><span class="ctrl-desc">하드 드롭</span>
+        <span class="ctrl-key">Shift</span><span class="ctrl-desc">홀드</span>
+        <span class="ctrl-key">Q</span><span class="ctrl-desc">시간 왜곡 (40MP)</span>
+        <span class="ctrl-key">W</span><span class="ctrl-desc">자기장 압축 (70MP)</span>
+        <span class="ctrl-key">E</span><span class="ctrl-desc">긴급 락온 (30MP)</span>
+      </div>
+    </div>
+
+    <div class="menu-card">
+      <h2>▶ 특수 블록</h2>
+      <div class="special-info">
+        <span>기생 블록</span>: 3초 후 주변 오염 / 제거 시 대미지 3배<br>
+        <span>얼음 블록</span>: 라인 잠금 / 방해 블록 50% 감속<br>
+        <span>폭탄 블록</span>: 제거 시 3×3 방해 블록 소멸<br>
+        <span>관통 블록</span>: 하드드롭 시 바닥까지 관통
+      </div>
+    </div>
+
+    <button id="startBtn">▶ START GAME</button>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
