@@ -2,140 +2,331 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Battle Block Star</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background: #0a0a1a;
+      background: #0a0a18;
       color: #ccc;
       font-family: 'Courier New', monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      overflow: hidden;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
+
+    /* ── Menu ── */
     #menu {
-      text-align: center;
-      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      padding: 28px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
     #menu h1 {
-      font-size: 36px;
-      color: #88aaff;
-      margin-bottom: 8px;
-      text-shadow: 0 0 20px #4466ff;
+      font-size: clamp(22px, 6vw, 34px);
+      color: #6688dd;
+      text-align: center;
+      text-shadow: 0 0 24px #3355cc;
     }
-    #menu p {
-      color: #666;
-      margin-bottom: 30px;
-      font-size: 13px;
-    }
-    .menu-card {
-      background: #1a1a2e;
-      border: 1px solid #2a2a5a;
+    #menu p { color: #555; font-size: 12px; text-align: center; }
+
+    .card {
+      background: #12122a;
+      border: 1px solid #223;
       border-radius: 8px;
-      padding: 24px 40px;
-      margin-bottom: 20px;
+      padding: 16px;
     }
-    .menu-card h2 {
-      color: #88aaff;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
+    .card h2 { color: #6688cc; font-size: 13px; margin-bottom: 10px; }
+
     select {
+      width: 100%;
       background: #0a0a1a;
       color: #ccc;
-      border: 1px solid #4488ff;
-      padding: 8px 16px;
+      border: 1px solid #3355aa;
+      padding: 10px 12px;
       font-family: monospace;
       font-size: 14px;
-      border-radius: 4px;
-      cursor: pointer;
+      border-radius: 5px;
     }
-    select option { background: #0a0a1a; }
-    #startBtn {
-      background: #1a3a8a;
-      color: #88aaff;
-      border: 2px solid #4488ff;
-      padding: 12px 40px;
-      font-size: 18px;
-      font-family: monospace;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: block;
-      margin: 0 auto;
-    }
-    #startBtn:hover {
-      background: #2244aa;
-      box-shadow: 0 0 20px #4488ff44;
-    }
-    .controls-grid {
+
+    .ctrl-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px 20px;
+      grid-template-columns: auto 1fr;
+      gap: 3px 14px;
       font-size: 12px;
-      text-align: left;
     }
-    .ctrl-key { color: #88aaff; }
-    .ctrl-desc { color: #888; }
-    canvas {
+    .ck { color: #7799ee; }
+    .cv { color: #778; }
+
+    .special-list { font-size: 11px; line-height: 1.7; color: #666; }
+    .special-list span { color: #9966dd; }
+
+    #startBtn {
+      background: #1a2e6e;
+      color: #99bbff;
+      border: 2px solid #3355aa;
+      padding: 14px;
+      font-size: 20px;
+      font-family: monospace;
+      border-radius: 7px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.1s;
+    }
+    #startBtn:active { background: #233a88; }
+
+    /* ── Game canvas wrapper ── */
+    #game-area {
       display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    #canvas-wrapper {
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    canvas {
+      display: block;
+      transform-origin: top center;
       image-rendering: pixelated;
     }
-    .special-info {
-      font-size: 11px;
-      color: #666;
-      margin-top: 8px;
+
+    /* ── Virtual Gamepad ── */
+    #gamepad {
+      width: 100%;
+      max-width: 500px;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
-    .special-info span { color: #aa66ff; }
+
+    .gp-row {
+      display: flex;
+      gap: 5px;
+    }
+    .gp-row.skills {
+      gap: 5px;
+    }
+
+    .gp-btn {
+      flex: 1;
+      min-height: 52px;
+      background: #111a33;
+      border: 1.5px solid #223366;
+      border-radius: 6px;
+      color: #aabbee;
+      font-size: 13px;
+      font-family: monospace;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      user-select: none;
+    }
+    .gp-btn:active,
+    .gp-btn.pressed { background: #1a2d55; border-color: #4466cc; }
+
+    .gp-btn .icon { font-size: 18px; line-height: 1; }
+    .gp-btn .label { font-size: 9px; color: #667; }
+
+    .gp-btn.skill { background: #0d1a2a; border-color: #1a3344; }
+    .gp-btn.skill:active { background: #0d2233; border-color: #2255aa; }
+    .gp-btn.disabled { opacity: 0.35; pointer-events: none; }
+
+    .gp-btn.danger { border-color: #442222; }
+    .gp-btn.danger:active { background: #2a0d0d; }
+
+    #btn-drop { background: #1a2200; border-color: #336600; flex: 2; }
+    #btn-drop:active { background: #254400; }
+
+    #btn-restart {
+      display: none;
+      background: #1a3a1a;
+      border-color: #33aa33;
+      color: #66ff66;
+    }
+
+    /* Desktop: hide gamepad, show keyboard hints */
+    @media (min-width: 700px) and (hover: hover) {
+      #gamepad { display: none; }
+    }
   </style>
 </head>
 <body>
-  <div id="menu">
-    <h1>⚔ BATTLE BLOCK STAR ⚔</h1>
-    <p>테트리스 로그라이크 1vs1 대전 액션</p>
 
-    <div class="menu-card">
-      <h2>▶ AI 난이도 선택</h2>
-      <select id="aiSelect">
-        <option value="balanced">균형형 (Balanced)</option>
-        <option value="fast">속사형 (Fast Shot)</option>
-        <option value="tetris">뚝심형 (Tetris Only)</option>
-      </select>
-    </div>
+<!-- ── MENU ── -->
+<div id="menu">
+  <h1>⚔ BATTLE BLOCK STAR ⚔</h1>
+  <p>테트리스 로그라이크 1v1 대전 액션</p>
 
-    <div class="menu-card">
-      <h2>▶ 조작법</h2>
-      <div class="controls-grid">
-        <span class="ctrl-key">← →</span><span class="ctrl-desc">이동</span>
-        <span class="ctrl-key">↑ / X</span><span class="ctrl-desc">시계방향 회전</span>
-        <span class="ctrl-key">C</span><span class="ctrl-desc">반시계 회전</span>
-        <span class="ctrl-key">↓</span><span class="ctrl-desc">소프트 드롭</span>
-        <span class="ctrl-key">Space</span><span class="ctrl-desc">하드 드롭</span>
-        <span class="ctrl-key">Shift</span><span class="ctrl-desc">홀드</span>
-        <span class="ctrl-key">Q</span><span class="ctrl-desc">시간 왜곡 (40MP)</span>
-        <span class="ctrl-key">W</span><span class="ctrl-desc">자기장 압축 (70MP)</span>
-        <span class="ctrl-key">E</span><span class="ctrl-desc">긴급 락온 (30MP)</span>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <h2>▶ 특수 블록</h2>
-      <div class="special-info">
-        <span>기생 블록</span>: 3초 후 주변 오염 / 제거 시 대미지 3배<br>
-        <span>얼음 블록</span>: 라인 잠금 / 방해 블록 50% 감속<br>
-        <span>폭탄 블록</span>: 제거 시 3×3 방해 블록 소멸<br>
-        <span>관통 블록</span>: 하드드롭 시 바닥까지 관통
-      </div>
-    </div>
-
-    <button id="startBtn">▶ START GAME</button>
+  <div class="card">
+    <h2>▶ AI 난이도</h2>
+    <select id="aiSelect">
+      <option value="balanced">균형형 (Balanced)</option>
+      <option value="fast">속사형 (Fast Shot)</option>
+      <option value="tetris">뚝심형 (Tetris Only)</option>
+    </select>
   </div>
 
-  <canvas id="gameCanvas"></canvas>
-  <script type="module" src="src/main.js"></script>
+  <div class="card">
+    <h2>▶ 키보드 조작</h2>
+    <div class="ctrl-grid">
+      <span class="ck">← →</span>    <span class="cv">이동</span>
+      <span class="ck">↑ / X</span>  <span class="cv">시계방향 회전</span>
+      <span class="ck">Z / C</span>  <span class="cv">반시계 회전</span>
+      <span class="ck">↓</span>      <span class="cv">소프트 드롭</span>
+      <span class="ck">Space</span>   <span class="cv">하드 드롭</span>
+      <span class="ck">Shift</span>   <span class="cv">홀드</span>
+      <span class="ck">Q</span>       <span class="cv">시간 왜곡 (40MP)</span>
+      <span class="ck">W</span>       <span class="cv">자기장 압축 (70MP)</span>
+      <span class="ck">E</span>       <span class="cv">긴급 락온 (30MP)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>▶ 특수 블록</h2>
+    <div class="special-list">
+      <span>기생 블록</span>: 3초 후 주변 오염 / 제거 시 대미지 3배<br>
+      <span>얼음 블록</span>: 라인 잠금 / 방해 블록 속도 50% 감소<br>
+      <span>폭탄 블록</span>: 제거 시 3×3 방해 블록 소멸<br>
+      <span>관통 블록</span>: 하드드롭 시 바닥까지 관통
+    </div>
+  </div>
+
+  <button id="startBtn">▶ 게임 시작</button>
+</div>
+
+<!-- ── GAME AREA ── -->
+<div id="game-area">
+  <div id="canvas-wrapper">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <!-- Virtual Gamepad -->
+  <div id="gamepad">
+
+    <!-- Row 1: Hold | Rotate CCW | Rotate CW -->
+    <div class="gp-row">
+      <button class="gp-btn" id="btn-hold">
+        <span class="icon">📦</span><span class="label">HOLD</span>
+      </button>
+      <button class="gp-btn" id="btn-rot-ccw">
+        <span class="icon">↺</span><span class="label">CCW</span>
+      </button>
+      <button class="gp-btn" id="btn-rot-cw">
+        <span class="icon">↻</span><span class="label">CW</span>
+      </button>
+    </div>
+
+    <!-- Row 2: Left | Hard Drop | Right -->
+    <div class="gp-row">
+      <button class="gp-btn" id="btn-left">
+        <span class="icon">◀</span><span class="label">LEFT</span>
+      </button>
+      <button class="gp-btn" id="btn-drop">
+        <span class="icon">⬇</span><span class="label">HARD DROP</span>
+      </button>
+      <button class="gp-btn" id="btn-right">
+        <span class="icon">▶</span><span class="label">RIGHT</span>
+      </button>
+    </div>
+
+    <!-- Row 3: Soft Drop | Skills -->
+    <div class="gp-row skills">
+      <button class="gp-btn" id="btn-soft">
+        <span class="icon">↓</span><span class="label">SOFT</span>
+      </button>
+      <button class="gp-btn skill" id="btn-skill-tw">
+        <span class="icon">⏱</span><span class="label">40MP TIME</span>
+      </button>
+      <button class="gp-btn skill" id="btn-skill-mc">
+        <span class="icon">⚡</span><span class="label">70MP MAG</span>
+      </button>
+      <button class="gp-btn skill" id="btn-skill-hl">
+        <span class="icon">🔒</span><span class="label">30MP LOCK</span>
+      </button>
+    </div>
+
+    <!-- Restart (shown on game over) -->
+    <div class="gp-row">
+      <button class="gp-btn" id="btn-restart" style="display:none">
+        <span class="icon">🔄</span><span class="label">RESTART</span>
+      </button>
+    </div>
+
+  </div><!-- #gamepad -->
+</div><!-- #game-area -->
+
+<script type="module">
+  import { Game } from './src/game.js';
+
+  const startBtn = document.getElementById('startBtn');
+
+  startBtn.addEventListener('click', launch);
+  startBtn.addEventListener('touchend', e => { e.preventDefault(); launch(); });
+
+  function launch() {
+    const aiType = document.getElementById('aiSelect').value;
+    document.getElementById('menu').style.display = 'none';
+    const gameArea = document.getElementById('game-area');
+    gameArea.style.display = 'flex';
+
+    const canvas = document.getElementById('gameCanvas');
+
+    // Scale canvas to fit screen (keep aspect ratio)
+    function scaleCanvas() {
+      const NATIVE_W = 900, NATIVE_H = 760;
+      // On mobile, leave ~200px for gamepad; on desktop use full height
+      const isMobile = window.matchMedia('(hover: none)').matches || window.innerWidth < 700;
+      const availH = isMobile
+        ? Math.max(200, window.innerHeight - 220)  // 220px for gamepad
+        : window.innerHeight - 20;
+      const scale = Math.min(1, window.innerWidth / NATIVE_W, availH / NATIVE_H);
+      canvas.style.transform = `scale(${scale})`;
+      canvas.style.marginBottom = `${-(NATIVE_H * (1 - scale))}px`;
+      // Show gamepad on touch devices
+      document.getElementById('gamepad').style.display = isMobile ? 'flex' : 'none';
+    }
+
+    scaleCanvas();
+    window.addEventListener('resize', scaleCanvas);
+
+    try {
+      const game = new Game(canvas, aiType);
+      game.start();
+    } catch (err) {
+      console.error('Game init error:', err);
+      const ctx = canvas.getContext('2d');
+      canvas.width = 900; canvas.height = 760;
+      ctx.fillStyle = '#0d0d1a';
+      ctx.fillRect(0, 0, 900, 760);
+      ctx.fillStyle = '#ff4444';
+      ctx.font = '18px monospace';
+      ctx.fillText('초기화 오류: ' + err.message, 30, 100);
+      ctx.font = '13px monospace';
+      ctx.fillStyle = '#aaa';
+      String(err.stack || '').split('\n').forEach((l, i) => ctx.fillText(l, 30, 130 + i * 18));
+    }
+  }
+</script>
 </body>
 </html>

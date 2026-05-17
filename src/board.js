@@ -176,7 +176,8 @@ export class Board {
         if (hasBomb) bombRows.push(r);
         this.grid.splice(r, 1);
         this.grid.unshift(new Array(BOARD_COLS).fill(0));
-        this.iceRows = new Set([...this.iceRows].map(ir => ir <= r ? ir : ir - 1));
+        // rows above r shift down by 1 (index +1); rows below r unchanged
+      this.iceRows = new Set([...this.iceRows].filter(ir => ir !== r).map(ir => ir < r ? ir + 1 : ir));
         cleared++;
         r++; // recheck same index
       }
