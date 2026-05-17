@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Battle Block Star</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,9 +18,6 @@
       align-items: center;
       min-height: 100dvh;
       overflow-x: hidden;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
     }
 
     /* ── Menu ── */
@@ -32,10 +30,10 @@
       gap: 16px;
     }
     #menu h1 {
-      font-size: clamp(22px, 6vw, 34px);
+      font-size: clamp(20px, 6vw, 32px);
       color: #6688dd;
       text-align: center;
-      text-shadow: 0 0 24px #3355cc;
+      text-shadow: 0 0 20px #3355cc;
     }
     #menu p { color: #555; font-size: 12px; text-align: center; }
 
@@ -43,9 +41,9 @@
       background: #12122a;
       border: 1px solid #223;
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px;
     }
-    .card h2 { color: #6688cc; font-size: 13px; margin-bottom: 10px; }
+    .card h2 { color: #6688cc; font-size: 13px; margin-bottom: 8px; }
 
     select {
       width: 100%;
@@ -56,6 +54,7 @@
       font-family: monospace;
       font-size: 14px;
       border-radius: 5px;
+      -webkit-appearance: none;
     }
 
     .ctrl-grid {
@@ -65,26 +64,27 @@
       font-size: 12px;
     }
     .ck { color: #7799ee; }
-    .cv { color: #778; }
+    .cv { color: #667; }
 
-    .special-list { font-size: 11px; line-height: 1.7; color: #666; }
-    .special-list span { color: #9966dd; }
+    .special-list { font-size: 11px; line-height: 1.8; color: #666; }
+    .special-list b { color: #9966dd; }
 
     #startBtn {
       background: #1a2e6e;
       color: #99bbff;
       border: 2px solid #3355aa;
-      padding: 14px;
+      padding: 16px;
       font-size: 20px;
       font-family: monospace;
-      border-radius: 7px;
+      border-radius: 8px;
       cursor: pointer;
       width: 100%;
-      transition: background 0.1s;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     #startBtn:active { background: #233a88; }
 
-    /* ── Game canvas wrapper ── */
+    /* ── Game area ── */
     #game-area {
       display: none;
       flex-direction: column;
@@ -94,86 +94,74 @@
 
     #canvas-wrapper {
       width: 100%;
-      overflow: hidden;
       display: flex;
       justify-content: center;
+      overflow: hidden;
     }
 
     canvas {
       display: block;
       transform-origin: top center;
       image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
 
     /* ── Virtual Gamepad ── */
     #gamepad {
       width: 100%;
-      max-width: 500px;
-      padding: 8px 6px;
-      display: flex;
+      max-width: 520px;
+      padding: 6px;
+      display: none;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
-    .gp-row {
-      display: flex;
-      gap: 5px;
-    }
-    .gp-row.skills {
-      gap: 5px;
-    }
+    .gp-row { display: flex; gap: 5px; }
 
     .gp-btn {
       flex: 1;
-      min-height: 52px;
+      min-height: 54px;
       background: #111a33;
       border: 1.5px solid #223366;
       border-radius: 6px;
       color: #aabbee;
-      font-size: 13px;
+      font-size: 11px;
       font-family: monospace;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 1px;
       -webkit-tap-highlight-color: transparent;
-      touch-action: none;
+      touch-action: manipulation;
       user-select: none;
+      -webkit-user-select: none;
     }
-    .gp-btn:active,
-    .gp-btn.pressed { background: #1a2d55; border-color: #4466cc; }
+    .gp-btn:active { background: #1a3366; border-color: #4466cc; }
+    .gp-btn .ico { font-size: 20px; line-height: 1; }
+    .gp-btn .lbl { font-size: 9px; color: #556; letter-spacing: 0.5px; }
 
-    .gp-btn .icon { font-size: 18px; line-height: 1; }
-    .gp-btn .label { font-size: 9px; color: #667; }
-
-    .gp-btn.skill { background: #0d1a2a; border-color: #1a3344; }
+    .gp-btn.skill { background: #0d1820; border-color: #1a2e3a; }
     .gp-btn.skill:active { background: #0d2233; border-color: #2255aa; }
-    .gp-btn.disabled { opacity: 0.35; pointer-events: none; }
+    .gp-btn.mp-ok { border-color: #2255aa; }
+    .gp-btn.mp-ok .lbl { color: #4477cc; }
+    .gp-btn.disabled { opacity: 0.3; }
 
-    .gp-btn.danger { border-color: #442222; }
-    .gp-btn.danger:active { background: #2a0d0d; }
-
-    #btn-drop { background: #1a2200; border-color: #336600; flex: 2; }
-    #btn-drop:active { background: #254400; }
+    #btn-drop { flex: 2; background: #181e00; border-color: #334400; }
+    #btn-drop:active { background: #233000; }
 
     #btn-restart {
       display: none;
-      background: #1a3a1a;
-      border-color: #33aa33;
-      color: #66ff66;
-    }
-
-    /* Desktop: hide gamepad, show keyboard hints */
-    @media (min-width: 700px) and (hover: hover) {
-      #gamepad { display: none; }
+      background: #0d2a0d;
+      border-color: #22aa22;
+      color: #44ff44;
     }
   </style>
 </head>
 <body>
 
-<!-- ── MENU ── -->
+<!-- MENU -->
 <div id="menu">
   <h1>⚔ BATTLE BLOCK STAR ⚔</h1>
   <p>테트리스 로그라이크 1v1 대전 액션</p>
@@ -190,143 +178,800 @@
   <div class="card">
     <h2>▶ 키보드 조작</h2>
     <div class="ctrl-grid">
-      <span class="ck">← →</span>    <span class="cv">이동</span>
-      <span class="ck">↑ / X</span>  <span class="cv">시계방향 회전</span>
-      <span class="ck">Z / C</span>  <span class="cv">반시계 회전</span>
-      <span class="ck">↓</span>      <span class="cv">소프트 드롭</span>
-      <span class="ck">Space</span>   <span class="cv">하드 드롭</span>
-      <span class="ck">Shift</span>   <span class="cv">홀드</span>
-      <span class="ck">Q</span>       <span class="cv">시간 왜곡 (40MP)</span>
-      <span class="ck">W</span>       <span class="cv">자기장 압축 (70MP)</span>
-      <span class="ck">E</span>       <span class="cv">긴급 락온 (30MP)</span>
+      <span class="ck">← →</span>   <span class="cv">이동</span>
+      <span class="ck">↑ / X</span> <span class="cv">시계방향 회전</span>
+      <span class="ck">Z / C</span> <span class="cv">반시계 회전</span>
+      <span class="ck">↓</span>     <span class="cv">소프트 드롭</span>
+      <span class="ck">Space</span>  <span class="cv">하드 드롭</span>
+      <span class="ck">Shift</span>  <span class="cv">홀드</span>
+      <span class="ck">Q</span>      <span class="cv">⏱ 시간 왜곡 (40MP)</span>
+      <span class="ck">W</span>      <span class="cv">⚡ 자기장 압축 (70MP)</span>
+      <span class="ck">E</span>      <span class="cv">🔒 긴급 락온 (30MP)</span>
     </div>
   </div>
 
   <div class="card">
     <h2>▶ 특수 블록</h2>
     <div class="special-list">
-      <span>기생 블록</span>: 3초 후 주변 오염 / 제거 시 대미지 3배<br>
-      <span>얼음 블록</span>: 라인 잠금 / 방해 블록 속도 50% 감소<br>
-      <span>폭탄 블록</span>: 제거 시 3×3 방해 블록 소멸<br>
-      <span>관통 블록</span>: 하드드롭 시 바닥까지 관통
+      <b>기생 블록</b>: 3초 후 주변 오염, 제거 시 대미지 3배<br>
+      <b>얼음 블록</b>: 라인 잠금, 방해 블록 50% 감속<br>
+      <b>폭탄 블록</b>: 제거 시 3×3 방해 블록 소멸<br>
+      <b>관통 블록</b>: 하드드롭 시 바닥까지 관통
     </div>
   </div>
 
   <button id="startBtn">▶ 게임 시작</button>
 </div>
 
-<!-- ── GAME AREA ── -->
+<!-- GAME -->
 <div id="game-area">
   <div id="canvas-wrapper">
     <canvas id="gameCanvas"></canvas>
   </div>
 
-  <!-- Virtual Gamepad -->
   <div id="gamepad">
-
-    <!-- Row 1: Hold | Rotate CCW | Rotate CW -->
     <div class="gp-row">
-      <button class="gp-btn" id="btn-hold">
-        <span class="icon">📦</span><span class="label">HOLD</span>
-      </button>
-      <button class="gp-btn" id="btn-rot-ccw">
-        <span class="icon">↺</span><span class="label">CCW</span>
-      </button>
-      <button class="gp-btn" id="btn-rot-cw">
-        <span class="icon">↻</span><span class="label">CW</span>
-      </button>
+      <button class="gp-btn" id="btn-hold"><span class="ico">📦</span><span class="lbl">HOLD</span></button>
+      <button class="gp-btn" id="btn-rot-ccw"><span class="ico">↺</span><span class="lbl">CCW</span></button>
+      <button class="gp-btn" id="btn-rot-cw"><span class="ico">↻</span><span class="lbl">CW</span></button>
     </div>
-
-    <!-- Row 2: Left | Hard Drop | Right -->
     <div class="gp-row">
-      <button class="gp-btn" id="btn-left">
-        <span class="icon">◀</span><span class="label">LEFT</span>
-      </button>
-      <button class="gp-btn" id="btn-drop">
-        <span class="icon">⬇</span><span class="label">HARD DROP</span>
-      </button>
-      <button class="gp-btn" id="btn-right">
-        <span class="icon">▶</span><span class="label">RIGHT</span>
-      </button>
+      <button class="gp-btn" id="btn-left"><span class="ico">◀</span><span class="lbl">LEFT</span></button>
+      <button class="gp-btn" id="btn-drop"><span class="ico">⬇</span><span class="lbl">HARD DROP</span></button>
+      <button class="gp-btn" id="btn-right"><span class="ico">▶</span><span class="lbl">RIGHT</span></button>
     </div>
-
-    <!-- Row 3: Soft Drop | Skills -->
-    <div class="gp-row skills">
-      <button class="gp-btn" id="btn-soft">
-        <span class="icon">↓</span><span class="label">SOFT</span>
-      </button>
-      <button class="gp-btn skill" id="btn-skill-tw">
-        <span class="icon">⏱</span><span class="label">40MP TIME</span>
-      </button>
-      <button class="gp-btn skill" id="btn-skill-mc">
-        <span class="icon">⚡</span><span class="label">70MP MAG</span>
-      </button>
-      <button class="gp-btn skill" id="btn-skill-hl">
-        <span class="icon">🔒</span><span class="label">30MP LOCK</span>
-      </button>
-    </div>
-
-    <!-- Restart (shown on game over) -->
     <div class="gp-row">
-      <button class="gp-btn" id="btn-restart" style="display:none">
-        <span class="icon">🔄</span><span class="label">RESTART</span>
-      </button>
+      <button class="gp-btn" id="btn-soft"><span class="ico">↓</span><span class="lbl">SOFT</span></button>
+      <button class="gp-btn skill" id="btn-skill-tw"><span class="ico">⏱</span><span class="lbl">TIME 40MP</span></button>
+      <button class="gp-btn skill" id="btn-skill-mc"><span class="ico">⚡</span><span class="lbl">MAG 70MP</span></button>
+      <button class="gp-btn skill" id="btn-skill-hl"><span class="ico">🔒</span><span class="lbl">LOCK 30MP</span></button>
     </div>
+    <div class="gp-row">
+      <button class="gp-btn" id="btn-restart" style="display:none"><span class="ico">🔄</span><span class="lbl">RESTART</span></button>
+    </div>
+  </div>
+</div>
 
-  </div><!-- #gamepad -->
-</div><!-- #game-area -->
+<script>
+'use strict';
 
-<script type="module">
-  import { Game } from './src/game.js';
+// ═══════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════
+const COLS = 10, ROWS = 20;
+const CS = 27; // cell size px
+const BW = COLS * CS, BH = ROWS * CS;
+const CANVAS_W = 900, CANVAS_H = 760;
+const TOP = 50;
 
-  const startBtn = document.getElementById('startBtn');
+// Player layout positions
+const P_HOLD_X  = 2;
+const P_BOARD_X = P_HOLD_X + CS * 4 + 6;
+const P_GARB_X  = P_BOARD_X + BW + 4;
+const P_NEXT_X  = P_GARB_X + 12;
+// Enemy layout (mirror)
+const E_NEXT_X  = CANVAS_W - P_NEXT_X - CS * 4;
+const E_GARB_X  = CANVAS_W - P_GARB_X - 12;
+const E_BOARD_X = CANVAS_W - P_BOARD_X - BW;
+const E_HOLD_X  = CANVAS_W - P_HOLD_X - CS * 4 - 6;
+const STATUS_Y  = TOP + BH + 10;
 
-  startBtn.addEventListener('click', launch);
-  startBtn.addEventListener('touchend', e => { e.preventDefault(); launch(); });
+const BLOCK = { EMPTY:0, I:1, O:2, T:3, S:4, Z:5, J:6, L:7,
+                INFECTION:8, ICE:9, BOMB:10, DRILL:11, GARBAGE:-1, CORRUPTED:99 };
+
+const COLORS = {
+  0:null, 1:'#00f0f0', 2:'#f0f000', 3:'#a000f0', 4:'#00f000',
+  5:'#f00000', 6:'#2255ff', 7:'#f0a000', 8:'#ff00ff', 9:'#aaddff',
+  10:'#ff6600', 11:'#888888', '-1':'#555555', 99:'#330000'
+};
+
+const SHAPES = {
+  1:[[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],[[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],[[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]],[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]],
+  2:[[[1,1],[1,1]],[[1,1],[1,1]],[[1,1],[1,1]],[[1,1],[1,1]]],
+  3:[[[0,1,0],[1,1,1],[0,0,0]],[[0,1,0],[0,1,1],[0,1,0]],[[0,0,0],[1,1,1],[0,1,0]],[[0,1,0],[1,1,0],[0,1,0]]],
+  4:[[[0,1,1],[1,1,0],[0,0,0]],[[0,1,0],[0,1,1],[0,0,1]],[[0,0,0],[0,1,1],[1,1,0]],[[1,0,0],[1,1,0],[0,1,0]]],
+  5:[[[1,1,0],[0,1,1],[0,0,0]],[[0,0,1],[0,1,1],[0,1,0]],[[0,0,0],[1,1,0],[0,1,1]],[[0,1,0],[1,1,0],[1,0,0]]],
+  6:[[[1,0,0],[1,1,1],[0,0,0]],[[0,1,1],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,1]],[[0,1,0],[0,1,0],[1,1,0]]],
+  7:[[[0,0,1],[1,1,1],[0,0,0]],[[0,1,0],[0,1,0],[0,1,1]],[[0,0,0],[1,1,1],[1,0,0]],[[1,1,0],[0,1,0],[0,1,0]]],
+  8:[[[0,1,0],[1,1,1],[0,0,0]],[[0,1,0],[0,1,1],[0,1,0]],[[0,0,0],[1,1,1],[0,1,0]],[[0,1,0],[1,1,0],[0,1,0]]],
+  9:[[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],[[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],[[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]],[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]],
+  10:[[[1,1],[1,1]],[[1,1],[1,1]],[[1,1],[1,1]],[[1,1],[1,1]]],
+  11:[[[0,1,0],[0,1,0],[0,1,0]],[[1,1,1],[0,0,0],[0,0,0]],[[0,1,0],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,0]]]
+};
+
+const KICKS = {
+  '0->1':[[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]], '1->0':[[0,0],[1,0],[1,-1],[0,2],[1,2]],
+  '1->2':[[0,0],[1,0],[1,-1],[0,2],[1,2]],      '2->1':[[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]],
+  '2->3':[[0,0],[1,0],[1,1],[0,-2],[1,-2]],      '3->2':[[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],
+  '3->0':[[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],   '0->3':[[0,0],[1,0],[1,1],[0,-2],[1,-2]]
+};
+
+const ATTACK_TABLE = [0, 1, 2, 4, 7];
+const SKILL_COSTS  = { TIME_WARP:40, MAGNETIC_COLLAPSE:70, HOLD_LOCK:30 };
+const BASE_MINOS   = [1,2,3,4,5,6,7];
+const SPECIAL_MINOS = [8,9,10,11];
+
+// ═══════════════════════════════════════════════
+// DECK
+// ═══════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+class Deck {
+  constructor(specialChance=0.1) {
+    this.specialChance = specialChance;
+    this.draw = [];
+    this.discard = [];
+    const d = [];
+    for (const m of BASE_MINOS) d.push(m,m,m);
+    this.draw = shuffle(d);
+  }
+  next() {
+    if (!this.draw.length) { this.draw = shuffle(this.discard); this.discard = []; }
+    const id = this.draw.pop();
+    if (Math.random() < this.specialChance) {
+      this.discard.push(id);
+      return SPECIAL_MINOS[Math.floor(Math.random()*SPECIAL_MINOS.length)];
+    }
+    this.discard.push(id);
+    return id;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// MINO
+// ═══════════════════════════════════════════════
+class Mino {
+  constructor(id, x=3, y=0) { this.id=id; this.x=x; this.y=y; this.rot=0; }
+  get shape() { return SHAPES[this.id][this.rot]; }
+  get cells() {
+    const s=this.shape, r=[];
+    for (let row=0; row<s.length; row++)
+      for (let col=0; col<s[row].length; col++)
+        if (s[row][col]) r.push({x:this.x+col, y:this.y+row});
+    return r;
+  }
+  clone() { const m=new Mino(this.id,this.x,this.y); m.rot=this.rot; return m; }
+}
+
+// ═══════════════════════════════════════════════
+// BOARD
+// ═══════════════════════════════════════════════
+class Board {
+  constructor(specialChance=0.1) {
+    this.grid = Array.from({length:ROWS}, ()=>new Array(COLS).fill(0));
+    this.deck = new Deck(specialChance);
+    this.current = null;
+    this.held = null;
+    this.holdUsed = false;
+    this.holdLocked = false;
+    this.nextQ = [];
+    this.garbageQ = 0;
+    this.combo = 0;
+    this.mp = 0;
+    this.defeated = false;
+    this.iceRows = new Set();
+    this.infections = [];
+    this.lastAttack = 0;
+    this._fillQ();
+    this.spawn();
+  }
+
+  _fillQ() { while (this.nextQ.length < 3) this.nextQ.push(this.deck.next()); }
+
+  spawn() {
+    const id = this.nextQ.shift();
+    this._fillQ();
+    this.current = new Mino(id, 3, 0);
+    this.holdUsed = false;
+    if (!this._ok(this.current)) this.defeated = true;
+  }
+
+  hold() {
+    if (this.holdUsed || this.holdLocked) return false;
+    if (this.held === null) { this.held = this.current.id; this.spawn(); }
+    else { const t=this.held; this.held=this.current.id; this.current=new Mino(t,3,0); }
+    this.holdUsed = true;
+    return true;
+  }
+
+  _ok(mino, dx=0, dy=0, rot=null) {
+    const m = mino.clone();
+    m.x+=dx; m.y+=dy;
+    if (rot!==null) m.rot=rot;
+    for (const {x,y} of m.cells) {
+      if (x<0||x>=COLS||y>=ROWS) return false;
+      if (y<0) continue;
+      if (this.grid[y][x]!==0) return false;
+    }
+    return true;
+  }
+
+  moveLeft()  { if (this._ok(this.current,-1,0)) this.current.x--; }
+  moveRight() { if (this._ok(this.current,1,0))  this.current.x++; }
+  moveDown()  {
+    if (this._ok(this.current,0,1)) { this.current.y++; return true; }
+    return false;
+  }
+
+  rotate(dir=1) {
+    const old = this.current.rot;
+    const nxt = (old + (dir>0?1:3)) % 4;
+    const key = `${old}->${nxt}`;
+    for (const [kx,ky] of (KICKS[key]||[[0,0]])) {
+      if (this._ok(this.current, kx, -ky, nxt)) {
+        this.current.x+=kx; this.current.y-=ky; this.current.rot=nxt; return true;
+      }
+    }
+    return false;
+  }
+
+  ghostY() {
+    let gy = this.current.y;
+    while (this._ok(this.current, 0, gy-this.current.y+1)) gy++;
+    return gy;
+  }
+
+  hardDrop() {
+    if (this.current.id === BLOCK.DRILL) {
+      this.current.y = ROWS - this.current.shape.length;
+    } else {
+      while (this._ok(this.current,0,1)) this.current.y++;
+    }
+    return this.lock();
+  }
+
+  lock() {
+    const m = this.current;
+    for (const {x,y} of m.cells) {
+      if (y<0) { this.defeated=true; return {events:['top-out'],cleared:0,attack:0}; }
+      this.grid[y][x] = m.id;
+    }
+    if (m.id === BLOCK.INFECTION) this.infections.push({cells:[...m.cells], timer:3000});
+    if (m.id === BLOCK.ICE) for (const {y} of m.cells) this.iceRows.add(y);
+
+    const cleared = this._clearLines(m.id);
+    let attack = 0;
+    if (cleared > 0) {
+      this.combo++;
+      attack = ATTACK_TABLE[Math.min(cleared,4)] + (this.combo-1);
+      if (m.id === BLOCK.INFECTION) attack *= 3;
+      this.mp = Math.min(100, this.mp + cleared*10);
+      const cancel = Math.min(attack, this.garbageQ);
+      this.garbageQ -= cancel; attack -= cancel;
+    } else {
+      this.combo = 0;
+      if (this.garbageQ > 0) { this._applyGarbage(this.garbageQ); this.garbageQ=0; }
+    }
+    this.lastAttack = attack;
+    this.spawn();
+    return {events:[], cleared, attack};
+  }
+
+  _clearLines(lockedId) {
+    let cleared = 0;
+    for (let r=ROWS-1; r>=0; r--) {
+      if (this.grid[r].every(c=>c!==0) && !this.iceRows.has(r)) {
+        const hasBomb = this.grid[r].some(c=>c===BLOCK.BOMB);
+        this.grid.splice(r,1);
+        this.grid.unshift(new Array(COLS).fill(0));
+        this.iceRows = new Set([...this.iceRows].filter(ir=>ir!==r).map(ir=>ir<r?ir+1:ir));
+        if (hasBomb) this._bombBlast(r);
+        cleared++; r++;
+      }
+    }
+    return cleared;
+  }
+
+  _bombBlast(row) {
+    for (let r=Math.max(0,row-1); r<=Math.min(ROWS-1,row+1); r++)
+      for (let c=0; c<COLS; c++)
+        if (this.grid[r][c]<0) this.grid[r][c]=0;
+  }
+
+  _applyGarbage(lines) {
+    const hole = Math.floor(Math.random()*COLS);
+    for (let i=0; i<lines; i++) {
+      if (this.grid[0].some(c=>c!==0)) { this.defeated=true; return; }
+      this.grid.shift();
+      const gl = new Array(COLS).fill(BLOCK.GARBAGE);
+      gl[hole] = 0;
+      this.grid.push(gl);
+    }
+  }
+
+  receiveGarbage(n, slow=1) { this.garbageQ += Math.ceil(n*slow); }
+
+  magneticCollapse() {
+    for (let c=0; c<COLS; c++) {
+      const blocks = [];
+      for (let r=0; r<ROWS; r++) if (this.grid[r][c]!==0) blocks.push(this.grid[r][c]);
+      for (let r=0; r<ROWS; r++) {
+        const b = ROWS-1-r;
+        this.grid[b][c] = r<blocks.length ? blocks[blocks.length-1-r] : 0;
+      }
+    }
+    this.iceRows.clear();
+  }
+
+  tickInfection(dt) {
+    for (let i=this.infections.length-1; i>=0; i--) {
+      this.infections[i].timer -= dt;
+      if (this.infections[i].timer <= 0) {
+        for (const {x,y} of this.infections[i].cells) {
+          for (const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]) {
+            if (nx>=0&&nx<COLS&&ny>=0&&ny<ROWS&&this.grid[ny][nx]>0&&this.grid[ny][nx]!==BLOCK.INFECTION)
+              this.grid[ny][nx]=BLOCK.CORRUPTED;
+          }
+        }
+        this.infections.splice(i,1);
+      }
+    }
+  }
+
+  hasIce() { return this.iceRows.size>0 || this.grid.some(r=>r.some(c=>c===BLOCK.ICE)); }
+}
+
+// ═══════════════════════════════════════════════
+// AI
+// ═══════════════════════════════════════════════
+function evalGrid(g) {
+  const h=new Array(COLS).fill(0);
+  for (let c=0;c<COLS;c++) for (let r=0;r<ROWS;r++) if (g[r][c]!==0){h[c]=ROWS-r;break;}
+  let totalH=0,holes=0,bump=0,lines=0;
+  for (let c=0;c<COLS;c++) totalH+=h[c];
+  for (let c=0;c<COLS-1;c++) bump+=Math.abs(h[c]-h[c+1]);
+  for (let r=0;r<ROWS;r++) {
+    for (let c=0;c<COLS;c++) if (g[r][c]===0) for (let rr=0;rr<r;rr++) if (g[rr][c]!==0){holes++;break;}
+    if (g[r].every(c=>c!==0)) lines++;
+  }
+  return {totalH,holes,bump,lines};
+}
+
+function dropSim(g, mino) {
+  const grid=g.map(r=>[...r]);
+  let dy=0;
+  const t=mino.clone();
+  while(true){
+    t.y=mino.y+dy+1;
+    if(!t.cells.every(({x,y})=>x>=0&&x<COLS&&y<ROWS&&(y<0||grid[y][x]===0))) break;
+    dy++;
+  }
+  t.y=mino.y+dy;
+  for (const {x,y} of t.cells) if (y>=0&&y<ROWS) grid[y][x]=mino.id;
+  let cleared=0;
+  for (let r=ROWS-1;r>=0;r--) if(grid[r].every(c=>c!==0)){grid.splice(r,1);grid.unshift(new Array(COLS).fill(0));cleared++;r++;}
+  return {grid,cleared};
+}
+
+class AI {
+  constructor(type='balanced') {
+    this.type=type;
+    this.tick= type==='fast'?100:500;
+    this.last=0;
+    this.queue=[];
+    this.w = type==='fast'  ? {h:-0.51,holes:-0.36,bump:-0.18,lines:0.76}
+           : type==='tetris'? {h:-0.5, holes:-0.5, bump:-0.6, lines:3.0}
+           :                  {h:-0.51,holes:-0.36,bump:-0.18,lines:1.0};
+  }
+  think(board,now) {
+    if (now-this.last<this.tick) return;
+    this.last=now;
+    if (this.queue.length===0) this._plan(board);
+  }
+  _plan(board) {
+    const g=board.grid.map(r=>[...r]), m=board.current;
+    if (!m) return;
+    let best=null, bestScore=-Infinity;
+    for (let rot=0;rot<4;rot++) {
+      const t=m.clone(); t.rot=rot; t.y=0;
+      for (let x=-4;x<COLS+4;x++) {
+        t.x=x;
+        if (!t.cells.every(({x:cx,y:cy})=>cx>=0&&cx<COLS&&(cy<0||(cy<ROWS&&g[cy][cx]===0)))) continue;
+        const {grid:ng,cleared}=dropSim(g,t);
+        const ev=evalGrid(ng);
+        let score=ev.totalH*this.w.h+ev.holes*this.w.holes+ev.bump*this.w.bump+ev.lines*this.w.lines;
+        if (this.type==='tetris') score+=cleared===4?50:cleared>0?-30:0;
+        if (score>bestScore){bestScore=score;best={x,rot};}
+      }
+    }
+    if (best) {
+      const q=[];
+      const rd=((best.rot-m.rot)%4+4)%4;
+      for (let i=0;i<rd;i++) q.push('cw');
+      const dx=best.x-m.x;
+      for (let i=0;i<Math.abs(dx);i++) q.push(dx>0?'right':'left');
+      q.push('drop');
+      this.queue=q;
+    }
+  }
+  step(board) {
+    if (!this.queue.length) return null;
+    const a=this.queue.shift();
+    if (a==='left')  board.moveLeft();
+    else if (a==='right') board.moveRight();
+    else if (a==='cw')   board.rotate(1);
+    else if (a==='drop') return board.hardDrop();
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RENDERER
+// ═══════════════════════════════════════════════
+class Renderer {
+  constructor(canvas) {
+    this.cv=canvas; this.ctx=canvas.getContext('2d');
+  }
+  clear() {
+    this.ctx.fillStyle='#0d0d1a';
+    this.ctx.fillRect(0,0,this.cv.width,this.cv.height);
+  }
+  board(b,ox,oy,label) {
+    const {ctx}=this;
+    ctx.fillStyle='#12122a'; ctx.fillRect(ox,oy,BW,BH);
+    ctx.strokeStyle='#1c1c38'; ctx.lineWidth=0.5;
+    for (let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(ox,oy+r*CS);ctx.lineTo(ox+BW,oy+r*CS);ctx.stroke();}
+    for (let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(ox+c*CS,oy);ctx.lineTo(ox+c*CS,oy+BH);ctx.stroke();}
+    for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++) if (b.grid[r][c]!==0) this._cell(ox+c*CS,oy+r*CS,b.grid[r][c]);
+    // infection overlay
+    for (const inf of b.infections)
+      for (const {x,y} of inf.cells) {
+        ctx.fillStyle=`rgba(255,0,255,${0.15+0.5*(1-inf.timer/3000)})`;
+        ctx.fillRect(ox+x*CS,oy+y*CS,CS,CS);
+        ctx.fillStyle='#fff'; ctx.font=`${Math.max(8,CS*0.38)}px monospace`;
+        ctx.fillText((inf.timer/1000).toFixed(1),ox+x*CS+2,oy+y*CS+CS*0.55);
+      }
+    // ghost
+    if (b.current&&!b.defeated) {
+      const gy=b.ghostY(), ghost=b.current.clone(); ghost.y=gy;
+      ctx.strokeStyle=COLORS[b.current.id]||'#fff'; ctx.lineWidth=1;
+      for (const {x,y} of ghost.cells) if(y>=0) ctx.strokeRect(ox+x*CS+2,oy+y*CS+2,CS-4,CS-4);
+    }
+    // current
+    if (b.current&&!b.defeated)
+      for (const {x,y} of b.current.cells) if(y>=0) this._cell(ox+x*CS,oy+y*CS,b.current.id);
+    ctx.strokeStyle=b.defeated?'#ff2222':'#2a3a88'; ctx.lineWidth=2;
+    ctx.strokeRect(ox,oy,BW,BH);
+    ctx.fillStyle='#99aacc'; ctx.font=`bold ${CS*0.44}px monospace`;
+    ctx.fillText(label,ox,oy-5);
+  }
+  _cell(px,py,id) {
+    const {ctx}=this;
+    const col=COLORS[id]??COLORS[String(id)]??'#888';
+    ctx.fillStyle=col; ctx.fillRect(px+2,py+2,CS-4,CS-4);
+    ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillRect(px+2,py+2,CS-4,3);
+    if (id===BLOCK.BOMB){ctx.font=`${CS-6}px sans-serif`;ctx.fillText('💣',px+1,py+CS-2);}
+    else if(id===BLOCK.ICE){ctx.fillStyle='rgba(180,240,255,0.3)';ctx.fillRect(px+2,py+2,CS-4,CS-4);}
+    else if(id===BLOCK.INFECTION){ctx.fillStyle='rgba(255,0,255,0.25)';ctx.fillRect(px+2,py+2,CS-4,CS-4);}
+    else if(id===BLOCK.CORRUPTED){ctx.strokeStyle='#ff0000';ctx.lineWidth=1.5;ctx.strokeRect(px+2,py+2,CS-4,CS-4);}
+  }
+  hold(id,ox,oy,locked) {
+    const {ctx}=this, W=CS*4,H=CS*3;
+    ctx.fillStyle='#181828'; ctx.fillRect(ox,oy,W,H);
+    ctx.strokeStyle=locked?'#ff3333':'#223366'; ctx.lineWidth=1.5; ctx.strokeRect(ox,oy,W,H);
+    ctx.fillStyle=locked?'#ff6666':'#778899'; ctx.font=`bold ${CS*0.37}px monospace`;
+    ctx.fillText('HOLD'+(locked?'🔒':''),ox+3,oy-3);
+    if (id!=null) this._preview(id,ox+CS*0.5,oy+CS*0.4);
+  }
+  next(queue,ox,oy) {
+    const {ctx}=this;
+    ctx.fillStyle='#778899'; ctx.font=`bold ${CS*0.37}px monospace`; ctx.fillText('NEXT',ox+3,oy-3);
+    for (let i=0;i<queue.length;i++) this._preview(queue[i],ox+CS*0.3,oy+i*CS*2.7+CS*0.3);
+  }
+  _preview(id,px,py) {
+    const s=SHAPES[id]?.[0]; if(!s) return;
+    const sz=Math.floor(CS*0.68);
+    for (let r=0;r<s.length;r++) for (let c=0;c<s[r].length;c++) if(s[r][c]){
+      this.ctx.fillStyle=COLORS[id]||'#888';
+      this.ctx.fillRect(px+c*sz+1,py+r*sz+1,sz-2,sz-2);
+    }
+  }
+  garbage(lines,ox,oy,h) {
+    const {ctx}=this;
+    ctx.fillStyle='#0d0d0d'; ctx.fillRect(ox,oy,10,h);
+    if (lines>0) {
+      const fh=Math.min((lines/20)*h,h);
+      ctx.fillStyle=lines>=8?'#ff2222':lines>=4?'#ff8800':'#ccaa00';
+      ctx.fillRect(ox,oy+h-fh,10,fh);
+      ctx.fillStyle='#fff'; ctx.font='bold 9px monospace'; ctx.fillText(String(lines),ox,oy+h-fh-2);
+    }
+    ctx.strokeStyle='#222'; ctx.lineWidth=1; ctx.strokeRect(ox,oy,10,h);
+  }
+  mp(val,ox,oy) {
+    const {ctx}=this, W=165;
+    ctx.fillStyle='#111'; ctx.fillRect(ox,oy,W,12);
+    ctx.fillStyle=val>=70?'#0088ff':val>=40?'#005599':'#002255';
+    ctx.fillRect(ox,oy,(val/100)*W,12);
+    ctx.strokeStyle='#223355'; ctx.lineWidth=1; ctx.strokeRect(ox,oy,W,12);
+    ctx.fillStyle='#ccd'; ctx.font='9px monospace'; ctx.fillText(`MP ${Math.floor(val)}/100`,ox+4,oy+9);
+  }
+  skills(val,active,ox,oy) {
+    const {ctx}=this;
+    const sk=[
+      {id:'TIME_WARP',label:'[Q] Time Warp',cost:40},
+      {id:'MAGNETIC_COLLAPSE',label:'[W] Mag.Collapse',cost:70},
+      {id:'HOLD_LOCK',label:'[E] Hold Lock',cost:30},
+    ];
+    sk.forEach((s,i)=>{
+      const x=ox,y=oy+i*28,can=val>=s.cost,on=active===s.id;
+      ctx.fillStyle=on?'#152a55':can?'#0d1628':'#080810'; ctx.fillRect(x,y,165,22);
+      ctx.strokeStyle=on?'#6688ff':can?'#224488':'#1a1a2a'; ctx.lineWidth=1; ctx.strokeRect(x,y,165,22);
+      ctx.fillStyle=can?'#aabbdd':'#334'; ctx.font='10px monospace';
+      ctx.fillText(`${s.label}  ${s.cost}MP`,x+4,y+15);
+    });
+  }
+  combo(n,ox,oy) {
+    if (n<2) return;
+    this.ctx.fillStyle=`hsl(${Math.max(0,55-(n-1)*6)},100%,60%)`;
+    this.ctx.font=`bold ${10+n}px monospace`;
+    this.ctx.fillText(`${n-1}× COMBO!`,ox,oy);
+  }
+  defeatOverlay(ox,oy) {
+    const {ctx}=this;
+    ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.fillRect(ox,oy,BW,BH);
+    ctx.fillStyle='#ff3333'; ctx.font=`bold ${Math.floor(BW/8)}px monospace`;
+    ctx.textAlign='center'; ctx.fillText('DEFEATED',ox+BW/2,oy+BH/2); ctx.textAlign='left';
+  }
+  skillFx(name,timer) {
+    if (!name||timer<=0) return;
+    const {ctx}=this;
+    ctx.fillStyle='rgba(0,50,160,0.07)'; ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+    ctx.fillStyle='#aabbff'; ctx.font='bold 13px monospace'; ctx.textAlign='center';
+    ctx.fillText(`⏱ ${name.replace('_',' ')}  ${(timer/1000).toFixed(1)}s`,CANVAS_W/2,26);
+    ctx.textAlign='left';
+  }
+  gameOver(winner) {
+    const {ctx}=this;
+    ctx.fillStyle='rgba(0,0,0,0.83)'; ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+    ctx.fillStyle=winner==='PLAYER'?'#33ff66':'#ff3333';
+    ctx.font='bold 52px monospace'; ctx.textAlign='center';
+    ctx.fillText(winner==='PLAYER'?'YOU WIN!':'GAME OVER',CANVAS_W/2,CANVAS_H/2-10);
+    ctx.fillStyle='#aaa'; ctx.font='17px monospace';
+    ctx.fillText('R키 또는 RESTART 버튼',CANVAS_W/2,CANVAS_H/2+38);
+    ctx.textAlign='left';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// GAME
+// ═══════════════════════════════════════════════
+class Game {
+  constructor(canvas, aiType='balanced') {
+    canvas.width=CANVAS_W; canvas.height=CANVAS_H;
+    this.cv=canvas;
+    this.ren=new Renderer(canvas);
+    this.pb=new Board(0.08);  // player
+    this.eb=new Board(0.0);   // enemy
+    this.ai=new AI(aiType);
+    this.aiInt=aiType==='fast'?110:380;
+    this.aiT=0;
+    this.fallInt=800; this.fallT=0;
+    this.skill=null; this.skillT=0; this.tf=1;
+    this.over=false; this.winner=null;
+    this.keys=new Set(); this.rep={};
+    this.RD=160; this.RI=55;
+    this._keys(); this._btns();
+  }
+
+  _keys() {
+    window.addEventListener('keydown', e=>{
+      if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+      if (this.keys.has(e.code)) return;
+      this.keys.add(e.code); this.rep[e.code]={next:performance.now()+this.RD};
+      this._key(e.code);
+    });
+    window.addEventListener('keyup', e=>{ this.keys.delete(e.code); delete this.rep[e.code]; });
+  }
+
+  _key(code) {
+    if (this.over) { if (code==='KeyR') location.reload(); return; }
+    const m={'ArrowLeft':'left','ArrowRight':'right','ArrowDown':'soft',
+              'ArrowUp':'cw','KeyX':'cw','KeyZ':'ccw','KeyC':'ccw','Space':'drop',
+              'ShiftLeft':'hold','ShiftRight':'hold'};
+    if (m[code]) this._do(m[code]);
+    else if (code==='KeyQ') this._skill('TIME_WARP');
+    else if (code==='KeyW') this._skill('MAGNETIC_COLLAPSE');
+    else if (code==='KeyE') this._skill('HOLD_LOCK');
+  }
+
+  _do(a) {
+    if (this.over) return;
+    const b=this.pb;
+    if (a==='left')  b.moveLeft();
+    else if (a==='right') b.moveRight();
+    else if (a==='cw')   b.rotate(1);
+    else if (a==='ccw')  b.rotate(-1);
+    else if (a==='hold') b.hold();
+    else if (a==='soft') { if (!b.moveDown()) this._lock(b,this.eb); }
+    else if (a==='drop') { const r=b.hardDrop(); if(r) this._res(r,b,this.eb); }
+  }
+
+  _skill(id) {
+    if (this.skill||this.over||this.pb.mp<SKILL_COSTS[id]) return;
+    this.pb.mp-=SKILL_COSTS[id]; this.skill=id;
+    if (id==='TIME_WARP')         { this.skillT=4000; this.tf=0.3; }
+    else if (id==='MAGNETIC_COLLAPSE') { this.pb.magneticCollapse(); this.skill=null; }
+    else if (id==='HOLD_LOCK')    { this.eb.holdLocked=true; this.eb.held=BLOCK.GARBAGE; this.skillT=5000; }
+  }
+
+  _lock(b,opp) { const r=b.lock(); this._res(r,b,opp); }
+  _res(r,att,def) {
+    if (att.defeated) { this._end(att===this.pb?'ENEMY':'PLAYER'); return; }
+    if (r.attack>0) def.receiveGarbage(r.attack, def.hasIce()?0.5:1);
+    if (def.defeated) this._end(att===this.pb?'PLAYER':'ENEMY');
+  }
+  _end(w) { this.over=true; this.winner=w; }
+
+  _btns() {
+    const map={
+      'btn-left':()=>this._do('left'), 'btn-right':()=>this._do('right'),
+      'btn-soft':()=>this._do('soft'), 'btn-drop':()=>this._do('drop'),
+      'btn-rot-cw':()=>this._do('cw'), 'btn-rot-ccw':()=>this._do('ccw'),
+      'btn-hold':()=>this._do('hold'),
+      'btn-skill-tw':()=>this._skill('TIME_WARP'),
+      'btn-skill-mc':()=>this._skill('MAGNETIC_COLLAPSE'),
+      'btn-skill-hl':()=>this._skill('HOLD_LOCK'),
+      'btn-restart':()=>location.reload(),
+    };
+    for (const [id,fn] of Object.entries(map)) {
+      const el=document.getElementById(id); if (!el) continue;
+      el.addEventListener('touchstart', e=>{e.preventDefault();fn();},{passive:false});
+      el.addEventListener('mousedown',  e=>{e.preventDefault();fn();});
+    }
+    // hold-repeat
+    for (const [id,a] of [['btn-left','left'],['btn-right','right'],['btn-soft','soft']]) {
+      const el=document.getElementById(id); if (!el) continue;
+      let t=null;
+      const go=()=>{this._do(a);t=setInterval(()=>this._do(a),this.RI);};
+      const stop=()=>{clearInterval(t);t=null;};
+      el.addEventListener('touchstart',e=>{e.preventDefault();go();},{passive:false});
+      el.addEventListener('touchend',  e=>{e.preventDefault();stop();},{passive:false});
+      el.addEventListener('touchcancel',e=>{stop();},{passive:false});
+      el.addEventListener('mousedown',go); el.addEventListener('mouseup',stop); el.addEventListener('mouseleave',stop);
+    }
+  }
+
+  start() { this._last=performance.now(); requestAnimationFrame(t=>this._loop(t)); }
+
+  _loop(now) {
+    const raw=now-this._last; this._last=now;
+    if (!this.over) this._update(raw*this.tf, now);
+    this._draw();
+    requestAnimationFrame(t=>this._loop(t));
+  }
+
+  _update(dt,now) {
+    // key repeat
+    for (const c of this.keys) {
+      const r=this.rep[c];
+      if (r&&now>=r.next) {
+        r.next=now+this.RI;
+        if (c==='ArrowLeft') this.pb.moveLeft();
+        else if (c==='ArrowRight') this.pb.moveRight();
+        else if (c==='ArrowDown') { if (!this.pb.moveDown()) this._lock(this.pb,this.eb); }
+      }
+    }
+    // auto fall
+    this.fallT+=dt;
+    if (this.fallT>=this.fallInt) { this.fallT=0; if (!this.pb.moveDown()) this._lock(this.pb,this.eb); }
+    // infection
+    this.pb.tickInfection(dt); this.eb.tickInfection(dt);
+    // skill timer
+    if (this.skill&&this.skillT>0) {
+      this.skillT-=dt;
+      if (this.skillT<=0) {
+        if (this.skill==='TIME_WARP')  this.tf=1;
+        if (this.skill==='HOLD_LOCK') this.eb.holdLocked=false;
+        this.skill=null; this.skillT=0;
+      }
+    }
+    // AI
+    this.ai.think(this.eb,now);
+    this.aiT+=dt;
+    if (this.aiT>=this.aiInt) {
+      this.aiT=0;
+      const r=this.ai.step(this.eb);
+      if (r) this._res(r,this.eb,this.pb);
+      if (this.eb.defeated) this._end('PLAYER');
+    }
+  }
+
+  _draw() {
+    const r=this.ren, ctx=this.cv.getContext('2d');
+    r.clear();
+    ctx.fillStyle='#4466bb'; ctx.font='bold 17px monospace'; ctx.textAlign='center';
+    ctx.fillText('⚔  BATTLE BLOCK STAR  ⚔',CANVAS_W/2,30); ctx.textAlign='left';
+
+    r.hold(this.pb.held,   P_HOLD_X, TOP, this.pb.holdLocked);
+    r.board(this.pb,       P_BOARD_X,TOP,'YOU');
+    r.garbage(this.pb.garbageQ, P_GARB_X,TOP,BH);
+    r.next(this.pb.nextQ,  P_NEXT_X, TOP);
+
+    r.combo(this.pb.combo, P_BOARD_X, STATUS_Y-4);
+    r.mp(this.pb.mp,       P_BOARD_X, STATUS_Y+10);
+    r.skills(this.pb.mp,   this.skill,P_BOARD_X, STATUS_Y+28);
+
+    r.next(this.eb.nextQ,  E_NEXT_X, TOP);
+    r.garbage(this.eb.garbageQ, E_GARB_X,TOP,BH);
+    r.board(this.eb,       E_BOARD_X,TOP,'ENEMY AI');
+    r.hold(this.eb.held,   E_HOLD_X, TOP, this.eb.holdLocked);
+
+    ctx.fillStyle='#445'; ctx.font='10px monospace';
+    ctx.fillText('AI: '+this.ai.type, E_BOARD_X, STATUS_Y+14);
+
+    r.skillFx(this.skill,this.skillT);
+    if (this.pb.defeated) r.defeatOverlay(P_BOARD_X,TOP);
+    if (this.eb.defeated) r.defeatOverlay(E_BOARD_X,TOP);
+    if (this.over) r.gameOver(this.winner);
+
+    // sync HTML button states
+    const mp=this.pb.mp;
+    [['btn-skill-tw',40],['btn-skill-mc',70],['btn-skill-hl',30]].forEach(([id,cost])=>{
+      const el=document.getElementById(id); if(!el) return;
+      el.classList.toggle('disabled', mp<cost||!!this.skill);
+      el.classList.toggle('mp-ok',    mp>=cost&&!this.skill);
+    });
+    const rb=document.getElementById('btn-restart');
+    if (rb) rb.style.display=this.over?'flex':'none';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// STARTUP
+// ═══════════════════════════════════════════════
+(function(){
+  const btn = document.getElementById('startBtn');
 
   function launch() {
-    const aiType = document.getElementById('aiSelect').value;
-    document.getElementById('menu').style.display = 'none';
-    const gameArea = document.getElementById('game-area');
-    gameArea.style.display = 'flex';
+    document.getElementById('menu').style.display='none';
+    document.getElementById('game-area').style.display='flex';
 
     const canvas = document.getElementById('gameCanvas');
+    const gamepad = document.getElementById('gamepad');
 
-    // Scale canvas to fit screen (keep aspect ratio)
     function scaleCanvas() {
-      const NATIVE_W = 900, NATIVE_H = 760;
-      // On mobile, leave ~200px for gamepad; on desktop use full height
-      const isMobile = window.matchMedia('(hover: none)').matches || window.innerWidth < 700;
-      const availH = isMobile
-        ? Math.max(200, window.innerHeight - 220)  // 220px for gamepad
-        : window.innerHeight - 20;
-      const scale = Math.min(1, window.innerWidth / NATIVE_W, availH / NATIVE_H);
-      canvas.style.transform = `scale(${scale})`;
-      canvas.style.marginBottom = `${-(NATIVE_H * (1 - scale))}px`;
-      // Show gamepad on touch devices
-      document.getElementById('gamepad').style.display = isMobile ? 'flex' : 'none';
+      const isMobile = ('ontouchstart' in window) || window.innerWidth < 700;
+      const padH = isMobile ? 210 : 0;
+      const availH = Math.max(200, window.innerHeight - padH - 10);
+      const scale = Math.min(1, window.innerWidth / CANVAS_W, availH / CANVAS_H);
+      canvas.style.transform = 'scale('+scale+')';
+      // Collapse the empty space that transform leaves
+      const collapsedH = Math.round(CANVAS_H * scale);
+      document.getElementById('canvas-wrapper').style.height = collapsedH + 'px';
+      gamepad.style.display = isMobile ? 'flex' : 'none';
     }
 
     scaleCanvas();
     window.addEventListener('resize', scaleCanvas);
 
+    const aiType = document.getElementById('aiSelect').value;
     try {
       const game = new Game(canvas, aiType);
       game.start();
-    } catch (err) {
-      console.error('Game init error:', err);
+    } catch(err) {
       const ctx = canvas.getContext('2d');
-      canvas.width = 900; canvas.height = 760;
-      ctx.fillStyle = '#0d0d1a';
-      ctx.fillRect(0, 0, 900, 760);
-      ctx.fillStyle = '#ff4444';
-      ctx.font = '18px monospace';
-      ctx.fillText('초기화 오류: ' + err.message, 30, 100);
-      ctx.font = '13px monospace';
-      ctx.fillStyle = '#aaa';
-      String(err.stack || '').split('\n').forEach((l, i) => ctx.fillText(l, 30, 130 + i * 18));
+      canvas.width=CANVAS_W; canvas.height=CANVAS_H;
+      ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+      ctx.fillStyle='#ff4444'; ctx.font='16px monospace';
+      ctx.fillText('오류: '+err.message, 20, 60);
+      ctx.fillStyle='#aaa'; ctx.font='12px monospace';
+      String(err.stack||'').split('\n').forEach((l,i)=>ctx.fillText(l,20,90+i*16));
     }
   }
+
+  // Both click and touchend to cover all devices
+  btn.addEventListener('click', launch);
+  btn.addEventListener('touchend', function(e){
+    e.preventDefault();
+    launch();
+  });
+})();
 </script>
 </body>
 </html>
