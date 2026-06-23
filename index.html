@@ -114,7 +114,9 @@
       object-fit:cover;
       border-radius:8px;
       display:block;
+      animation:iconFade .3s ease;
     }
+    @keyframes iconFade{from{opacity:0}to{opacity:1}}
     .card:hover .icon{border-color:#2244aa}
 
     .name-block{flex:1;min-width:0}
@@ -220,7 +222,6 @@
      href="https://drayage.github.io/favoritefrenzy/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🎯">
-        <img src="https://drayage.github.io/favoritefrenzy/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">최애쟁탈전</div>
@@ -240,7 +241,6 @@
      href="https://drayage.github.io/battleblock-star-v3/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🌟">
-        <img src="https://drayage.github.io/battleblock-star-v3/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">배틀블럭스타</div>
@@ -260,7 +260,6 @@
      href="https://drayage.github.io/secrettactics/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🥷">
-        <img src="https://drayage.github.io/secrettactics/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">체틱스</div>
@@ -280,7 +279,6 @@
      href="https://drayage.github.io/number-strike5448/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🔢">
-        <img src="https://drayage.github.io/number-strike5448/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">넘버스트라이크</div>
@@ -300,7 +298,6 @@
      href="https://drayage.github.io/baebbopdi/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🌱">
-        <img src="https://drayage.github.io/baebbopdi/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">배뽑디</div>
@@ -322,7 +319,6 @@
      href="https://drayage.github.io/DoraST/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🗺️">
-        <img src="https://drayage.github.io/DoraST/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">무인도탈출</div>
@@ -344,7 +340,6 @@
      href="https://drayage.github.io/votersareneverhappy/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🗳️">
-        <img src="https://drayage.github.io/votersareneverhappy/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">유권자가너무해</div>
@@ -364,7 +359,6 @@
      href="https://drayage.github.io/JMRpg/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="⚔️">
-        <img src="https://drayage.github.io/JMRpg/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">잡마스터알피지</div>
@@ -386,7 +380,6 @@
      href="./game.html" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="⭐">
-        <img src="https://drayage.github.io/battleblockstar/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">배틀블럭스타 (구버전)</div>
@@ -406,7 +399,6 @@
      href="https://drayage.github.io/battleblock2/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🧱">
-        <img src="https://drayage.github.io/battleblock2/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">배틀블럭2</div>
@@ -426,7 +418,6 @@
      href="https://drayage.github.io/DEADLINE/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="⏰">
-        <img src="https://drayage.github.io/DEADLINE/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">데드라인</div>
@@ -446,7 +437,6 @@
      href="https://drayage.github.io/doyose-survival/" target="_blank">
     <div class="card-top">
       <div class="icon" data-emoji="🐦">
-        <img src="https://drayage.github.io/doyose-survival/icons/512x512.png" alt="">
       </div>
       <div class="name-block">
         <div class="name-ko">도요새 서바이벌</div>
@@ -469,11 +459,44 @@
 </footer>
 
 <script>
-  // PWA 아이콘 로드 실패 시 이모지 폴백
-  document.querySelectorAll('.icon img').forEach(img => {
-    img.onerror = function() {
-      this.parentElement.textContent = this.parentElement.dataset.emoji || '🎮';
-    };
+  // 이모지 초기화
+  document.querySelectorAll('.icon[data-emoji]').forEach(el => {
+    el.textContent = el.dataset.emoji;
+  });
+
+  // manifest.json에서 아이콘 자동 로드
+  document.querySelectorAll('.card').forEach(async card => {
+    const iconEl = card.querySelector('.icon');
+    if (!iconEl) return;
+    const emoji = iconEl.dataset.emoji || '🎮';
+
+    try {
+      const url = new URL(card.href, location.href);
+      const base = url.origin + url.pathname.replace(/\/[^\/]*$/, '');
+
+      const res = await fetch(base + '/manifest.json');
+      if (!res.ok) return;
+
+      const manifest = await res.json();
+      const icons = (manifest.icons || [])
+        .filter(i => i.src && !/maskable/i.test(i.purpose || ''))
+        .sort((a, b) => {
+          const sa = parseInt((a.sizes || '0').split('x')[0]) || 0;
+          const sb = parseInt((b.sizes || '0').split('x')[0]) || 0;
+          return sb - sa;
+        });
+      if (!icons.length) return;
+
+      let src = icons[0].src;
+      if (!src.startsWith('http')) {
+        src = src.startsWith('/') ? url.origin + src : base + '/' + src.replace(/^\.\//, '');
+      }
+
+      const img = new Image();
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;';
+      img.onload = () => { iconEl.innerHTML = ''; iconEl.appendChild(img); };
+      img.src = src;
+    } catch(e) { /* keep emoji */ }
   });
 
   // 통계 카운터
