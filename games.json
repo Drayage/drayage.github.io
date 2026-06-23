@@ -24,7 +24,7 @@
     "completion": 100,
     "genre": "퍼즐 배틀",
     "single": true,
-    "online": 2,
+    "online": 0,
     "onlineOnly": false
   },
   {
@@ -66,7 +66,7 @@
     "completion": 100,
     "genre": "디펜스",
     "single": true,
-    "online": 8,
+    "online": 0,
     "onlineOnly": false
   },
   {
@@ -80,7 +80,7 @@
     "completion": 100,
     "genre": "턴제전략",
     "single": true,
-    "online": 0,
+    "online": 2,
     "onlineOnly": true
   },
   {
@@ -105,7 +105,7 @@
     "emoji": "🗳️",
     "url": "https://drayage.github.io/votersareneverhappy/",
     "status": "wip",
-    "completion": 70,
+    "completion": 35,
     "genre": "시뮬레이션",
     "single": true,
     "online": 0,
@@ -133,11 +133,11 @@
     "emoji": "⭐",
     "url": "./game.html",
     "status": "stop",
-    "completion": 85,
+    "completion": 5,
     "genre": "퍼즐 배틀",
-    "single": false,
-    "online": 2,
-    "onlineOnly": true
+    "single": true,
+    "online": 0,
+    "onlineOnly": false
   },
   {
     "repo": "battleblock2",
@@ -147,11 +147,11 @@
     "emoji": "🧱",
     "url": "https://drayage.github.io/battleblock2/",
     "status": "stop",
-    "completion": 70,
+    "completion": 5,
     "genre": "퍼즐 배틀",
-    "single": false,
-    "online": 2,
-    "onlineOnly": true
+    "single": true,
+    "online": 0,
+    "onlineOnly": false
   },
   {
     "repo": "doyose-survival",
@@ -161,7 +161,7 @@
     "emoji": "🐦",
     "url": "https://drayage.github.io/doyose-survival/",
     "status": "stop",
-    "completion": 55,
+    "completion": 10,
     "genre": "서바이벌",
     "single": true,
     "online": 0,
