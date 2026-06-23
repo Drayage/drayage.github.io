@@ -6,197 +6,77 @@
   <title>Drayage Games Hub</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#080816;color:#ccc;font-family:'Courier New',monospace;min-height:100vh;padding:0 0 60px}
 
-    body{
-      background:#080816;
-      color:#ccc;
-      font-family:'Courier New',monospace;
-      min-height:100vh;
-      padding:0 0 60px;
-    }
-
-    /* ── Header ── */
-    header{
-      text-align:center;
-      padding:48px 16px 36px;
-      border-bottom:1px solid #0f0f28;
-      position:relative;
-      overflow:hidden;
-    }
-    header::before{
-      content:'';
-      position:absolute;inset:0;
-      background:radial-gradient(ellipse 60% 80% at 50% 0%, #0d1a4a 0%, transparent 70%);
-      pointer-events:none;
-    }
-    header h1{
-      font-size:clamp(22px,6vw,46px);
-      color:#7799ff;
-      text-shadow:0 0 24px #3355cc,0 0 60px #1133aa44;
-      letter-spacing:6px;
-      margin-bottom:8px;
-      position:relative;
-    }
+    header{text-align:center;padding:48px 16px 32px;border-bottom:1px solid #0f0f28;position:relative;overflow:hidden}
+    header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 0%,#0d1a4a 0%,transparent 70%);pointer-events:none}
+    header h1{font-size:clamp(22px,6vw,46px);color:#7799ff;text-shadow:0 0 24px #3355cc,0 0 60px #1133aa44;letter-spacing:6px;margin-bottom:8px;position:relative}
     header h1 span{color:#aabbff}
-    header .sub{
-      font-size:11px;
-      color:#334466;
-      letter-spacing:3px;
-      position:relative;
-    }
-    .stats-row{
-      display:flex;justify-content:center;gap:32px;
-      margin-top:20px;font-size:10px;color:#3a4a6a;
-      letter-spacing:2px;position:relative;
-    }
+    header .sub{font-size:11px;color:#334466;letter-spacing:3px;position:relative}
+    .stats-row{display:flex;justify-content:center;flex-wrap:wrap;gap:20px 32px;margin-top:20px;font-size:10px;color:#3a4a6a;letter-spacing:2px;position:relative}
     .stats-row b{color:#5577aa}
 
-    /* ── Filter bar ── */
-    .filter-bar{
-      display:flex;justify-content:center;gap:8px;flex-wrap:wrap;
-      padding:20px 16px;
-      max-width:900px;margin:0 auto;
-    }
-    .filter-btn{
-      background:#0d0d22;border:1px solid #1a1a3a;
-      color:#445;font-family:monospace;font-size:10px;
-      padding:5px 14px;border-radius:3px;cursor:pointer;
-      letter-spacing:1px;transition:all .15s;
-    }
-    .filter-btn:hover,.filter-btn.active{
-      border-color:#3355aa;color:#7799ee;background:#111130;
-    }
+    .filter-bar{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:20px 16px;max-width:900px;margin:0 auto}
+    .filter-btn{background:#0d0d22;border:1px solid #1a1a3a;color:#445;font-family:monospace;font-size:10px;padding:5px 14px;border-radius:3px;cursor:pointer;letter-spacing:1px;transition:all .15s}
+    .filter-btn:hover,.filter-btn.active{border-color:#3355aa;color:#7799ee;background:#111130}
 
-    /* ── Grid ── */
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-      gap:14px;
-      max-width:1100px;
-      margin:0 auto;
-      padding:0 16px;
-    }
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;max-width:1100px;margin:0 auto;padding:0 16px}
 
-    /* ── Card ── */
-    .card{
-      display:block;
-      background:#0c0c20;
-      border:1px solid #181830;
-      border-radius:10px;
-      padding:18px;
-      text-decoration:none;
-      color:inherit;
-      transition:transform .15s,border-color .15s,box-shadow .15s;
-      position:relative;
-      overflow:hidden;
-    }
-    .card::after{
-      content:'';
-      position:absolute;inset:0;
-      border-radius:10px;
-      border:1px solid transparent;
-      transition:border-color .15s;
-      pointer-events:none;
-    }
-    .card:hover{
-      transform:translateY(-3px);
-      border-color:#2a3a7a;
-      box-shadow:0 8px 28px rgba(22,44,140,.35);
-    }
-    .card:hover::after{border-color:#3355aa44}
+    .card{display:block;background:#0c0c20;border:1px solid #181830;border-radius:10px;padding:18px;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s,box-shadow .15s;position:relative;overflow:hidden}
+    .card:hover{transform:translateY(-3px);border-color:#2a3a7a;box-shadow:0 8px 28px rgba(22,44,140,.35)}
+    .card.hidden{display:none}
 
-    .card-top{
-      display:flex;align-items:center;gap:14px;
-      margin-bottom:12px;
-    }
-    .icon{
-      font-size:34px;
-      width:54px;height:54px;
-      display:flex;align-items:center;justify-content:center;
-      background:#090920;
-      border:1px solid #151535;
-      border-radius:8px;
-      flex-shrink:0;
-      transition:border-color .15s;
-    }
+    .card-top{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+    .icon{width:54px;height:54px;display:flex;align-items:center;justify-content:center;background:#090920;border:1px solid #151535;border-radius:10px;flex-shrink:0;overflow:hidden;font-size:30px;transition:border-color .15s}
+    .icon img{width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;animation:iconFade .3s ease}
+    @keyframes iconFade{from{opacity:0}to{opacity:1}}
     .card:hover .icon{border-color:#2244aa}
 
     .name-block{flex:1;min-width:0}
-    .name-block h2{
-      font-size:13px;color:#8899dd;
-      margin-bottom:3px;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .name-block .repo{font-size:9px;color:#2a3050;letter-spacing:1px}
+    .name-ko{font-size:14px;font-weight:bold;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .name-en{font-size:10px;color:#445;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+    .repo{font-size:9px;color:#222a40;letter-spacing:1px}
 
-    .desc{
-      font-size:11px;color:#556;
-      line-height:1.65;
-      margin-bottom:14px;
-      min-height:36px;
-    }
+    .desc{font-size:11px;color:#556;line-height:1.65;margin-bottom:10px;min-height:36px}
 
-    /* ── Completion ── */
+    .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+    .tag{font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:.5px}
+    .tag-genre{background:#0e0e28;color:#4455aa;border:1px solid #1a1a3a}
+    .tag-single{background:#0e1e0e;color:#336633;border:1px solid #1a2e1a}
+    .tag-online{background:#0e1828;color:#334466;border:1px solid #1a2a3a}
+    .tag-online-only{background:#1a0e28;color:#554488;border:1px solid #2a1a3a}
+
     .completion-row{display:flex;align-items:center;gap:10px}
-    .bar-bg{
-      flex:1;height:4px;
-      background:#0a0a20;
-      border-radius:2px;overflow:hidden;
-    }
+    .bar-bg{flex:1;height:4px;background:#0a0a20;border-radius:2px;overflow:hidden}
     .bar-fill{height:100%;border-radius:2px}
     .pct{font-size:10px;width:30px;text-align:right;flex-shrink:0}
-    .badge{
-      font-size:9px;padding:2px 8px;
-      border-radius:3px;letter-spacing:1px;flex-shrink:0;
-    }
+    .badge{font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:1px;flex-shrink:0}
 
-    /* status colours */
-    .s-done  .name-block h2{color:#6abf8a}
-    .s-done  .bar-fill{background:linear-gradient(90deg,#1a5e38,#4caf80)}
-    .s-done  .pct{color:#4caf80}
-    .s-done  .badge{background:#0a2018;color:#4caf80;border:1px solid #1a4028}
+    .s-done .name-ko{color:#6abf8a} .s-done .bar-fill{background:linear-gradient(90deg,#1a5e38,#4caf80)} .s-done .pct{color:#4caf80} .s-done .badge{background:#0a2018;color:#4caf80;border:1px solid #1a4028}
+    .s-beta .name-ko{color:#6699dd} .s-beta .bar-fill{background:linear-gradient(90deg,#1a3a7a,#5580cc)} .s-beta .pct{color:#5580cc} .s-beta .badge{background:#0a1430;color:#5580cc;border:1px solid #1a2850}
+    .s-wip  .name-ko{color:#cc8844} .s-wip  .bar-fill{background:linear-gradient(90deg,#5a3010,#e08030)} .s-wip  .pct{color:#e08030} .s-wip  .badge{background:#200e00;color:#e08030;border:1px solid #3a2010}
+    .s-stop .name-ko{color:#6655aa} .s-stop .bar-fill{background:linear-gradient(90deg,#1e1535,#6655aa)} .s-stop .pct{color:#6655aa} .s-stop .badge{background:#100e20;color:#6655aa;border:1px solid #2a2040} .s-stop .desc{color:#3a3a52} .s-stop .bar-bg{opacity:.6}
 
-    .s-beta  .name-block h2{color:#6699dd}
-    .s-beta  .bar-fill{background:linear-gradient(90deg,#1a3a7a,#5580cc)}
-    .s-beta  .pct{color:#5580cc}
-    .s-beta  .badge{background:#0a1430;color:#5580cc;border:1px solid #1a2850}
+    .edit-btn{position:absolute;top:10px;right:10px;background:#0d0d22;border:1px solid #1a1a3a;color:#334;font-size:9px;padding:2px 7px;border-radius:3px;cursor:pointer;text-decoration:none;opacity:0;transition:opacity .15s;letter-spacing:1px}
+    .card:hover .edit-btn{opacity:1}
 
-    .s-wip   .name-block h2{color:#cc8844}
-    .s-wip   .bar-fill{background:linear-gradient(90deg,#5a3010,#e08030)}
-    .s-wip   .pct{color:#e08030}
-    .s-wip   .badge{background:#200e00;color:#e08030;border:1px solid #3a2010}
+    footer{text-align:center;margin-top:48px;font-size:9px;color:#1a1a30;letter-spacing:2px}
 
-    .s-early .name-block h2{color:#cc5555}
-    .s-early .bar-fill{background:linear-gradient(90deg,#5a1010,#cc4444)}
-    .s-early .pct{color:#cc4444}
-    .s-early .badge{background:#1c0808;color:#cc4444;border:1px solid #3a1414}
+    #error-msg{text-align:center;padding:40px;color:#553;font-size:12px}
 
-    /* hidden by filter */
-    .card.hidden{display:none}
-
-    /* ── Footer ── */
-    footer{
-      text-align:center;
-      margin-top:48px;
-      font-size:9px;color:#1a1a30;
-      letter-spacing:2px;
-    }
-
-    @media(max-width:520px){
-      .grid{grid-template-columns:1fr}
-      .filter-bar{gap:6px}
-    }
+    @media(max-width:520px){.grid{grid-template-columns:1fr}.filter-bar{gap:6px}}
   </style>
 </head>
 <body>
-
 <header>
   <h1>★ <span>DRAYAGE</span> GAMES ★</h1>
   <p class="sub">GITHUB PAGES COLLECTION</p>
   <div class="stats-row">
-    <span><b id="total">0</b> GAMES</span>
-    <span><b id="done-cnt">0</b> DONE</span>
-    <span><b id="wip-cnt">0</b> IN PROGRESS</span>
+    <span><b id="s-total">0</b> GAMES</span>
+    <span><b id="s-done">0</b> DONE</span>
+    <span><b id="s-beta">0</b> BETA</span>
+    <span><b id="s-wip">0</b> WIP</span>
+    <span><b id="s-stop">0</b> STOP</span>
   </div>
 </header>
 
@@ -205,254 +85,121 @@
   <button class="filter-btn" data-filter="done">DONE</button>
   <button class="filter-btn" data-filter="beta">BETA</button>
   <button class="filter-btn" data-filter="wip">WIP</button>
-  <button class="filter-btn" data-filter="early">EARLY</button>
+  <button class="filter-btn" data-filter="stop">STOP</button>
 </div>
 
 <div class="grid" id="grid">
-
-  <!-- ★ Battle Block Star (이 레포) -->
-  <a class="card s-beta" data-status="beta"
-     href="./game.html" target="_blank">
-    <div class="card-top">
-      <div class="icon">⭐</div>
-      <div class="name-block">
-        <h2>Battle Block Star</h2>
-        <div class="repo">battleblockstar</div>
-      </div>
-    </div>
-    <p class="desc">테트리스 로그라이크 1v1 배틀 게임. 블록을 쌓아 상대방의 필드를 무너뜨려라.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:85%"></div></div>
-      <span class="pct">85%</span>
-      <span class="badge">BETA</span>
-    </div>
-  </a>
-
-  <!-- Battle Block Star V3 -->
-  <a class="card s-wip" data-status="wip"
-     href="https://drayage.github.io/battleblock-star-v3/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🌟</div>
-      <div class="name-block">
-        <h2>Battle Block Star V3</h2>
-        <div class="repo">battleblock-star-v3</div>
-      </div>
-    </div>
-    <p class="desc">배틀블록스타 시리즈의 세 번째 버전. 개선된 메카닉과 새로운 특수 블록 시스템.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:65%"></div></div>
-      <span class="pct">65%</span>
-      <span class="badge">WIP</span>
-    </div>
-  </a>
-
-  <!-- Battle Block 2 -->
-  <a class="card s-beta" data-status="beta"
-     href="https://drayage.github.io/battleblock2/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🧱</div>
-      <div class="name-block">
-        <h2>Battle Block 2</h2>
-        <div class="repo">battleblock2</div>
-      </div>
-    </div>
-    <p class="desc">배틀블록 시리즈 두 번째 작품. 전작의 전투 시스템을 기반으로 발전된 배틀 게임.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div>
-      <span class="pct">70%</span>
-      <span class="badge">BETA</span>
-    </div>
-  </a>
-
-  <!-- Secret Tactics -->
-  <a class="card s-wip" data-status="wip"
-     href="https://drayage.github.io/secrettactics/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🥷</div>
-      <div class="name-block">
-        <h2>Secret Tactics</h2>
-        <div class="repo">secrettactics</div>
-      </div>
-    </div>
-    <p class="desc">비밀 전술을 구사하는 전략 게임. 상대방의 수를 예측하고 최적의 작전을 펼쳐라.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:60%"></div></div>
-      <span class="pct">60%</span>
-      <span class="badge">WIP</span>
-    </div>
-  </a>
-
-  <!-- DEADLINE -->
-  <a class="card s-beta" data-status="beta"
-     href="https://drayage.github.io/DEADLINE/" target="_blank">
-    <div class="card-top">
-      <div class="icon">⏰</div>
-      <div class="name-block">
-        <h2>DEADLINE</h2>
-        <div class="repo">DEADLINE</div>
-      </div>
-    </div>
-    <p class="desc">제한 시간 안에 목표를 달성하는 긴장감 넘치는 게임. 데드라인을 지켜라.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:80%"></div></div>
-      <span class="pct">80%</span>
-      <span class="badge">BETA</span>
-    </div>
-  </a>
-
-  <!-- Number Strike -->
-  <a class="card s-wip" data-status="wip"
-     href="https://drayage.github.io/number-strike5448/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🔢</div>
-      <div class="name-block">
-        <h2>Number Strike</h2>
-        <div class="repo">number-strike5448</div>
-      </div>
-    </div>
-    <p class="desc">숫자를 맞추고 공격하는 두뇌 배틀 게임. 수 감각으로 상대를 압도하라.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:65%"></div></div>
-      <span class="pct">65%</span>
-      <span class="badge">WIP</span>
-    </div>
-  </a>
-
-  <!-- 도요새 서바이벌 -->
-  <a class="card s-wip" data-status="wip"
-     href="https://drayage.github.io/doyose-survival/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🐦</div>
-      <div class="name-block">
-        <h2>도요새 서바이벌</h2>
-        <div class="repo">doyose-survival</div>
-      </div>
-    </div>
-    <p class="desc">혹독한 환경 속에서 살아남는 서바이벌 게임. 끝까지 버텨내라.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:55%"></div></div>
-      <span class="pct">55%</span>
-      <span class="badge">WIP</span>
-    </div>
-  </a>
-
-  <!-- Favorite Frenzy -->
-  <a class="card s-beta" data-status="beta"
-     href="https://drayage.github.io/favoritefrenzy/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🎯</div>
-      <div class="name-block">
-        <h2>Favorite Frenzy</h2>
-        <div class="repo">favoritefrenzy</div>
-      </div>
-    </div>
-    <p class="desc">빠른 판단력이 요구되는 선택형 프렌지 게임. 가장 좋아하는 것을 골라라.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:75%"></div></div>
-      <span class="pct">75%</span>
-      <span class="badge">BETA</span>
-    </div>
-  </a>
-
-  <!-- 배뽑디 -->
-  <a class="card s-wip" data-status="wip"
-     href="https://drayage.github.io/baebbopdi/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🌱</div>
-      <div class="name-block">
-        <h2>배뽑디</h2>
-        <div class="repo">baebbopdi</div>
-      </div>
-    </div>
-    <p class="desc">단순하지만 중독성 있는 캐주얼 퍼즐 게임. 직관적인 조작으로 누구나 즐길 수 있다.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:60%"></div></div>
-      <span class="pct">60%</span>
-      <span class="badge">WIP</span>
-    </div>
-  </a>
-
-  <!-- Voters Are Never Happy -->
-  <a class="card s-done" data-status="done"
-     href="https://drayage.github.io/votersareneverhappy/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🗳️</div>
-      <div class="name-block">
-        <h2>Voters Are Never Happy</h2>
-        <div class="repo">votersareneverhappy</div>
-      </div>
-    </div>
-    <p class="desc">불만족스러운 유권자들을 설득해야 하는 정치 전략 시뮬레이션 게임.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:90%"></div></div>
-      <span class="pct">90%</span>
-      <span class="badge">DONE</span>
-    </div>
-  </a>
-
-  <!-- JMRpg -->
-  <a class="card s-wip" data-status="wip"
-     href="https://drayage.github.io/JMRpg/" target="_blank">
-    <div class="card-top">
-      <div class="icon">⚔️</div>
-      <div class="name-block">
-        <h2>JMRpg</h2>
-        <div class="repo">JMRpg</div>
-      </div>
-    </div>
-    <p class="desc">캐릭터를 성장시키며 모험을 떠나는 롤플레잉 어드벤처 게임.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:50%"></div></div>
-      <span class="pct">50%</span>
-      <span class="badge">WIP</span>
-    </div>
-  </a>
-
-  <!-- DoraST -->
-  <a class="card s-early" data-status="early"
-     href="https://drayage.github.io/DoraST/" target="_blank">
-    <div class="card-top">
-      <div class="icon">🗺️</div>
-      <div class="name-block">
-        <h2>DoraST</h2>
-        <div class="repo">DoraST</div>
-      </div>
-    </div>
-    <p class="desc">지도를 따라 탐험하는 어드벤처 게임. 아직 초기 개발 단계에 있다.</p>
-    <div class="completion-row">
-      <div class="bar-bg"><div class="bar-fill" style="width:35%"></div></div>
-      <span class="pct">35%</span>
-      <span class="badge">EARLY</span>
-    </div>
-  </a>
-
+  <div id="error-msg" style="display:none">games.json 로드 실패</div>
 </div>
 
 <footer>
-  <p>© 2026 DRAYAGE &nbsp;·&nbsp; ALL GAMES BUILT WITH HTML / JS &nbsp;·&nbsp; GITHUB PAGES</p>
+  <p>© 2026 DRAYAGE &nbsp;·&nbsp; ALL GAMES BUILT WITH HTML / JS &nbsp;·&nbsp; GITHUB PAGES &nbsp;·&nbsp; <a href="editor.html" style="color:#2a2a4a;text-decoration:none">EDITOR</a></p>
 </footer>
 
 <script>
-  // Stats counter
-  const cards = document.querySelectorAll('.card');
-  const doneCount = document.querySelectorAll('[data-status="done"]').length;
-  const wipCount  = [...document.querySelectorAll('[data-status]')]
-    .filter(c => c.dataset.status !== 'done').length;
-  document.getElementById('total').textContent   = cards.length;
-  document.getElementById('done-cnt').textContent = doneCount;
-  document.getElementById('wip-cnt').textContent  = wipCount;
+const BADGE_LABELS = { done:'DONE', beta:'BETA', wip:'WIP', stop:'STOP' };
 
-  // Filter
+function playerTags(g) {
+  const tags = [];
+  if (g.onlineOnly) {
+    tags.push(`<span class="tag tag-online-only">온라인 전용 ${g.online}인</span>`);
+  } else {
+    if (g.single) tags.push('<span class="tag tag-single">싱글</span>');
+    if (g.online > 0) tags.push(`<span class="tag tag-online">온라인 ${g.online}인</span>`);
+  }
+  return tags.join('');
+}
+
+function buildCard(g) {
+  const a = document.createElement('a');
+  a.className = `card s-${g.status}`;
+  a.dataset.status = g.status;
+  a.href = g.url;
+  a.target = g.url.startsWith('http') ? '_blank' : '_self';
+
+  a.innerHTML = `
+    <div class="card-top">
+      <div class="icon" data-emoji="${g.emoji}">${g.emoji}</div>
+      <div class="name-block">
+        <div class="name-ko">${g.nameKo}</div>
+        <div class="name-en">${g.nameEn}</div>
+        <div class="repo">${g.repo}</div>
+      </div>
+    </div>
+    <p class="desc">${g.desc}</p>
+    <div class="tags">
+      <span class="tag tag-genre">${g.genre}</span>
+      ${playerTags(g)}
+    </div>
+    <div class="completion-row">
+      <div class="bar-bg"><div class="bar-fill" style="width:${g.completion}%"></div></div>
+      <span class="pct">${g.completion}%</span>
+      <span class="badge">${BADGE_LABELS[g.status] || g.status.toUpperCase()}</span>
+    </div>`;
+  return a;
+}
+
+async function loadIcon(card, g) {
+  const iconEl = card.querySelector('.icon');
+  try {
+    const url = new URL(g.url, location.href);
+    const base = url.origin + url.pathname.replace(/\/[^\/]*$/, '');
+    const res = await fetch(base + '/manifest.json');
+    if (!res.ok) return;
+    const manifest = await res.json();
+    const icons = (manifest.icons || [])
+      .filter(i => i.src && !/maskable/i.test(i.purpose || ''))
+      .sort((a, b) => (parseInt((b.sizes||'0'))||0) - (parseInt((a.sizes||'0'))||0));
+    if (!icons.length) return;
+    let src = icons[0].src;
+    if (!src.startsWith('http')) src = src.startsWith('/') ? url.origin + src : base + '/' + src.replace(/^\.\//, '');
+    const img = new Image();
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;';
+    img.onload = () => { iconEl.innerHTML = ''; iconEl.appendChild(img); };
+    img.src = src;
+  } catch(e) {}
+}
+
+async function init() {
+  const grid = document.getElementById('grid');
+  let games;
+  try {
+    const res = await fetch('games.json');
+    if (!res.ok) throw new Error();
+    games = await res.json();
+  } catch(e) {
+    document.getElementById('error-msg').style.display = 'block';
+    return;
+  }
+
+  games.forEach(g => {
+    const card = buildCard(g);
+    grid.appendChild(card);
+    loadIcon(card, g);
+  });
+
+  // 통계
+  const count = s => games.filter(g => g.status === s).length;
+  document.getElementById('s-total').textContent = games.length;
+  document.getElementById('s-done').textContent  = count('done');
+  document.getElementById('s-beta').textContent  = count('beta');
+  document.getElementById('s-wip').textContent   = count('wip');
+  document.getElementById('s-stop').textContent  = count('stop');
+
+  // 필터
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const f = btn.dataset.filter;
-      cards.forEach(c => {
+      document.querySelectorAll('.card').forEach(c => {
         c.classList.toggle('hidden', f !== 'all' && c.dataset.status !== f);
       });
     });
   });
+}
+
+init();
 </script>
 </body>
 </html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games Editor</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#060612;color:#ccc;font-family:'Courier New',monospace;min-height:100vh}
+
+    /* ── Top bar ── */
+    .topbar{
+      background:#0a0a1e;border-bottom:1px solid #151530;
+      padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+      position:sticky;top:0;z-index:100;
+    }
+    .topbar h1{font-size:13px;color:#6688dd;letter-spacing:3px;flex:0 0 auto}
+    .topbar .spacer{flex:1}
+    .gh-section{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .gh-section label{font-size:9px;color:#334;letter-spacing:1px}
+    .gh-section input{
+      background:#080818;border:1px solid #1a1a3a;color:#aab;
+      font-family:monospace;font-size:11px;padding:5px 9px;border-radius:4px;
+      width:220px;
+    }
+    .gh-section input:focus{outline:none;border-color:#3355aa}
+    .gh-section select{
+      background:#080818;border:1px solid #1a1a3a;color:#aab;
+      font-family:monospace;font-size:11px;padding:5px 8px;border-radius:4px;
+    }
+    .btn{
+      background:#0d1428;border:1px solid #2233aa;color:#6688dd;
+      font-family:monospace;font-size:10px;padding:6px 14px;border-radius:4px;
+      cursor:pointer;letter-spacing:1px;transition:all .15s;white-space:nowrap;
+    }
+    .btn:hover{background:#1a2a50;border-color:#4466cc}
+    .btn.green{border-color:#1a5e38;color:#4caf80;background:#0a1a10}
+    .btn.green:hover{background:#0f2818}
+    .btn.red{border-color:#5e1a1a;color:#e05050;background:#1a0a0a}
+    .btn.red:hover{background:#280f0f}
+    .btn:disabled{opacity:.3;cursor:not-allowed}
+
+    /* ── Status toast ── */
+    #toast{
+      position:fixed;bottom:20px;right:20px;
+      background:#0d1428;border:1px solid #3355aa;color:#88aaee;
+      font-size:11px;padding:10px 16px;border-radius:6px;
+      opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;
+    }
+    #toast.show{opacity:1}
+    #toast.ok{border-color:#1a5e38;color:#4caf80;background:#0a1a10}
+    #toast.err{border-color:#5e1a1a;color:#e05050;background:#1a0a0a}
+
+    /* ── Toolbar under topbar ── */
+    .toolbar{
+      padding:10px 20px;display:flex;gap:8px;align-items:center;
+      border-bottom:1px solid #0f0f28;background:#080816;
+    }
+    .toolbar span{font-size:10px;color:#334;margin-left:auto}
+
+    /* ── Game list ── */
+    .game-list{max-width:860px;margin:20px auto;padding:0 16px;display:flex;flex-direction:column;gap:10px}
+
+    .game-panel{background:#0c0c20;border:1px solid #181830;border-radius:8px;overflow:hidden}
+    .game-panel.dragging{opacity:.5}
+
+    .panel-header{
+      display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;
+      user-select:none;transition:background .15s;
+    }
+    .panel-header:hover{background:#111128}
+    .panel-emoji{font-size:22px;width:32px;text-align:center}
+    .panel-names{flex:1;min-width:0}
+    .panel-nameko{font-size:13px;color:#99aacc}
+    .panel-repo{font-size:9px;color:#2a3050;letter-spacing:1px}
+    .panel-status{font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:1px;flex-shrink:0}
+    .st-done{background:#0a2018;color:#4caf80;border:1px solid #1a4028}
+    .st-beta{background:#0a1430;color:#5580cc;border:1px solid #1a2850}
+    .st-wip {background:#200e00;color:#e08030;border:1px solid #3a2010}
+    .st-stop{background:#100e20;color:#6655aa;border:1px solid #2a2040}
+    .panel-arrow{font-size:10px;color:#334;flex-shrink:0;transition:transform .2s}
+    .panel-arrow.open{transform:rotate(90deg)}
+    .drag-handle{cursor:grab;color:#223;font-size:14px;flex-shrink:0;padding:0 2px}
+    .drag-handle:active{cursor:grabbing}
+
+    .panel-body{display:none;border-top:1px solid #0f0f28;padding:16px}
+    .panel-body.open{display:block}
+
+    /* ── Form fields ── */
+    .field-grid{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;align-items:start}
+    .field-label{font-size:10px;color:#445;padding-top:7px;letter-spacing:.5px}
+    .field-input{
+      background:#080818;border:1px solid #151530;color:#bbc;
+      font-family:monospace;font-size:12px;padding:6px 9px;border-radius:4px;
+      width:100%;transition:border-color .15s;
+    }
+    .field-input:focus{outline:none;border-color:#3355aa}
+    textarea.field-input{resize:vertical;min-height:60px;line-height:1.5}
+    select.field-input{-webkit-appearance:none}
+
+    .field-row{display:flex;gap:10px;align-items:center}
+    .range-wrap{flex:1;display:flex;align-items:center;gap:8px}
+    input[type=range]{flex:1;accent-color:#3355aa}
+    .range-val{font-size:11px;color:#6688dd;width:35px;text-align:right}
+
+    .checkbox-group{display:flex;gap:16px;flex-wrap:wrap;padding-top:4px}
+    .cb-item{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#778}
+    .cb-item input{accent-color:#3355aa;width:14px;height:14px}
+
+    .panel-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #0f0f28}
+
+    /* ── Add game form ── */
+    #add-panel{background:#080818;border:1px dashed #1a1a3a;border-radius:8px;padding:16px;display:none;max-width:860px;margin:0 auto 10px;padding:16px}
+    #add-panel.open{display:block}
+    #add-panel h3{font-size:11px;color:#4455aa;letter-spacing:2px;margin-bottom:12px}
+
+    /* ── Preview ── */
+    .preview-wrap{max-width:860px;margin:0 auto 30px;padding:0 16px;display:none}
+    .preview-wrap.open{display:block}
+    .preview-wrap h3{font-size:10px;color:#334;letter-spacing:2px;margin-bottom:10px}
+
+    .preview-card{
+      background:#0c0c20;border:1px solid #181830;border-radius:10px;padding:18px;
+      max-width:340px;
+    }
+    .preview-top{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+    .preview-icon{width:54px;height:54px;display:flex;align-items:center;justify-content:center;background:#090920;border:1px solid #151535;border-radius:10px;font-size:30px;flex-shrink:0}
+    .preview-ko{font-size:14px;font-weight:bold;margin-bottom:2px}
+    .preview-en{font-size:10px;color:#445;margin-bottom:2px}
+    .preview-repo{font-size:9px;color:#222a40;letter-spacing:1px}
+    .preview-desc{font-size:11px;color:#556;line-height:1.65;margin-bottom:10px}
+    .preview-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+    .preview-row{display:flex;align-items:center;gap:10px}
+    .preview-bar{flex:1;height:4px;background:#0a0a20;border-radius:2px;overflow:hidden}
+    .preview-fill{height:100%;border-radius:2px}
+    .preview-pct{font-size:10px;width:30px;text-align:right}
+    .preview-badge{font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:1px}
+
+    .tag{font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:.5px}
+    .tag-genre{background:#0e0e28;color:#4455aa;border:1px solid #1a1a3a}
+    .tag-single{background:#0e1e0e;color:#336633;border:1px solid #1a2e1a}
+    .tag-online{background:#0e1828;color:#334466;border:1px solid #1a2a3a}
+    .tag-online-only{background:#1a0e28;color:#554488;border:1px solid #2a1a3a}
+
+    @media(max-width:540px){
+      .field-grid{grid-template-columns:1fr}
+      .field-label{padding-top:0}
+      .gh-section input{width:160px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>★ GAMES EDITOR</h1>
+  <div class="spacer"></div>
+  <div class="gh-section">
+    <label>BRANCH</label>
+    <input id="gh-branch" placeholder="main" value="claude/github-pages-portfolio-hub-afloys">
+    <label>TOKEN</label>
+    <input id="gh-token" type="password" placeholder="ghp_xxxx (선택사항)">
+    <button class="btn green" id="push-btn" onclick="pushToGitHub()">↑ GitHub 저장</button>
+  </div>
+  <button class="btn" onclick="downloadJSON()">↓ JSON 다운로드</button>
+  <a href="index.html" class="btn" style="text-decoration:none">← 허브로</a>
+</div>
+
+<div class="toolbar">
+  <button class="btn" onclick="toggleAdd()">+ 게임 추가</button>
+  <button class="btn" onclick="togglePreview()" id="preview-toggle-btn">▤ 미리보기</button>
+  <span id="save-hint" style="display:none;color:#4a3a10;font-size:9px">● 미저장 변경사항 있음</span>
+</div>
+
+<div id="add-panel">
+  <h3>NEW GAME</h3>
+  <div class="field-grid">
+    <span class="field-label">레포명</span><input class="field-input" id="new-repo" placeholder="my-game">
+    <span class="field-label">한글명</span><input class="field-input" id="new-nameko" placeholder="게임 이름">
+    <span class="field-label">영어명</span><input class="field-input" id="new-nameen" placeholder="Game Name">
+    <span class="field-label">URL</span><input class="field-input" id="new-url" placeholder="https://drayage.github.io/my-game/">
+  </div>
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <button class="btn green" onclick="addGame()">추가</button>
+    <button class="btn" onclick="toggleAdd()">취소</button>
+  </div>
+</div>
+
+<div class="preview-wrap" id="preview-wrap">
+  <h3>CARD PREVIEW</h3>
+  <div class="preview-card" id="preview-card"></div>
+</div>
+
+<div class="game-list" id="game-list"></div>
+
+<div id="toast"></div>
+
+<script>
+const REPO_OWNER = 'Drayage';
+const REPO_NAME  = 'drayage.github.io';
+const FILE_PATH  = 'games.json';
+
+let games = [];
+let dirty = false;
+
+// ── Load ──────────────────────────────────────
+async function loadGames() {
+  try {
+    const res = await fetch('games.json?t=' + Date.now());
+    if (!res.ok) throw new Error();
+    games = await res.json();
+  } catch(e) {
+    const saved = localStorage.getItem('games_draft');
+    if (saved) { games = JSON.parse(saved); toast('로컬 저장본으로 복원', 'ok'); }
+    else { games = []; toast('games.json 로드 실패', 'err'); }
+  }
+  renderAll();
+}
+
+// ── Render ────────────────────────────────────
+function renderAll() {
+  const list = document.getElementById('game-list');
+  list.innerHTML = '';
+  games.forEach((g, i) => list.appendChild(buildPanel(g, i)));
+  updatePreview();
+  loadToken();
+}
+
+const STATUS_LABELS = { done:'DONE', beta:'BETA', wip:'WIP', stop:'STOP' };
+const STATUS_OPTS   = ['done','beta','wip','stop'];
+const GENRE_OPTS    = ['퍼즐 배틀','전략','퍼즐','파티','캐주얼','액션','RPG','어드벤처','서바이벌','시뮬레이션','기타'];
+
+function buildPanel(g, i) {
+  const div = document.createElement('div');
+  div.className = 'game-panel';
+  div.dataset.index = i;
+
+  div.innerHTML = `
+    <div class="panel-header" onclick="togglePanel(${i})">
+      <span class="drag-handle" draggable="true">⠿</span>
+      <span class="panel-emoji">${g.emoji}</span>
+      <div class="panel-names">
+        <div class="panel-nameko">${g.nameKo}</div>
+        <div class="panel-repo">${g.repo}</div>
+      </div>
+      <span class="panel-status st-${g.status}">${STATUS_LABELS[g.status]||g.status}</span>
+      <span class="panel-arrow" id="arrow-${i}">▶</span>
+    </div>
+    <div class="panel-body" id="body-${i}">
+      <div class="field-grid">
+        <span class="field-label">이모지</span>
+        <input class="field-input" id="f-emoji-${i}" value="${g.emoji}" oninput="update(${i},'emoji',this.value)">
+
+        <span class="field-label">한글명</span>
+        <input class="field-input" id="f-nameko-${i}" value="${esc(g.nameKo)}" oninput="update(${i},'nameKo',this.value)">
+
+        <span class="field-label">영어명</span>
+        <input class="field-input" id="f-nameen-${i}" value="${esc(g.nameEn)}" oninput="update(${i},'nameEn',this.value)">
+
+        <span class="field-label">레포</span>
+        <input class="field-input" id="f-repo-${i}" value="${esc(g.repo)}" oninput="update(${i},'repo',this.value)">
+
+        <span class="field-label">URL</span>
+        <input class="field-input" id="f-url-${i}" value="${esc(g.url)}" oninput="update(${i},'url',this.value)">
+
+        <span class="field-label">설명</span>
+        <textarea class="field-input" id="f-desc-${i}" oninput="update(${i},'desc',this.value)">${esc(g.desc)}</textarea>
+
+        <span class="field-label">장르</span>
+        <div class="field-row">
+          <input class="field-input" id="f-genre-${i}" value="${esc(g.genre)}" list="genre-list" oninput="update(${i},'genre',this.value)" style="flex:1">
+          <datalist id="genre-list">${GENRE_OPTS.map(o=>`<option value="${o}">`).join('')}</datalist>
+        </div>
+
+        <span class="field-label">플레이어</span>
+        <div class="checkbox-group">
+          <label class="cb-item"><input type="checkbox" id="f-single-${i}" ${g.single?'checked':''} onchange="update(${i},'single',this.checked)"> 싱글</label>
+          <label class="cb-item"><input type="checkbox" id="f-onlineonly-${i}" ${g.onlineOnly?'checked':''} onchange="update(${i},'onlineOnly',this.checked)"> 온라인 전용</label>
+        </div>
+
+        <span class="field-label">온라인 인원</span>
+        <div class="range-wrap">
+          <input type="range" min="0" max="8" id="f-online-${i}" value="${g.online}" oninput="update(${i},'online',+this.value);document.getElementById('online-val-${i}').textContent=this.value==0?'없음':this.value+'인'">
+          <span class="range-val" id="online-val-${i}">${g.online===0?'없음':g.online+'인'}</span>
+        </div>
+
+        <span class="field-label">완성도</span>
+        <div class="range-wrap">
+          <input type="range" min="0" max="100" step="5" id="f-comp-${i}" value="${g.completion}" oninput="update(${i},'completion',+this.value);document.getElementById('comp-val-${i}').textContent=this.value+'%'">
+          <span class="range-val" id="comp-val-${i}">${g.completion}%</span>
+        </div>
+
+        <span class="field-label">상태</span>
+        <select class="field-input" id="f-status-${i}" onchange="update(${i},'status',this.value)">
+          ${STATUS_OPTS.map(s=>`<option value="${s}"${g.status===s?' selected':''}>${STATUS_LABELS[s]}</option>`).join('')}
+        </select>
+      </div>
+      <div class="panel-actions">
+        <button class="btn" onclick="previewGame(${i})">▤ 미리보기</button>
+        <button class="btn" onclick="moveUp(${i})" ${i===0?'disabled':''}>↑</button>
+        <button class="btn" onclick="moveDown(${i})" ${i===games.length-1?'disabled':''}>↓</button>
+        <button class="btn red" onclick="deleteGame(${i})">✕ 삭제</button>
+      </div>
+    </div>`;
+
+  // Drag & drop for reorder
+  const handle = div.querySelector('.drag-handle');
+  handle.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); div.classList.add('dragging'); });
+  handle.addEventListener('dragend',   () => div.classList.remove('dragging'));
+  div.addEventListener('dragover',  e => { e.preventDefault(); div.style.borderColor='#3355aa'; });
+  div.addEventListener('dragleave', () => div.style.borderColor='');
+  div.addEventListener('drop', e => {
+    e.preventDefault();
+    div.style.borderColor = '';
+    const from = +e.dataTransfer.getData('text/plain');
+    const to = i;
+    if (from !== to) { const [item] = games.splice(from, 1); games.splice(to, 0, item); markDirty(); renderAll(); }
+  });
+
+  return div;
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function togglePanel(i) {
+  const body  = document.getElementById(`body-${i}`);
+  const arrow = document.getElementById(`arrow-${i}`);
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function update(i, key, val) {
+  games[i][key] = val;
+  markDirty();
+  // update panel header live
+  const panel = document.querySelector(`.game-panel[data-index="${i}"]`);
+  if (!panel) return;
+  panel.querySelector('.panel-emoji').textContent = games[i].emoji;
+  panel.querySelector('.panel-nameko').textContent = games[i].nameKo;
+  panel.querySelector('.panel-repo').textContent   = games[i].repo;
+  const badge = panel.querySelector('.panel-status');
+  badge.className = `panel-status st-${games[i].status}`;
+  badge.textContent = STATUS_LABELS[games[i].status] || games[i].status;
+  updatePreview();
+}
+
+function markDirty() {
+  dirty = true;
+  document.getElementById('save-hint').style.display = 'block';
+  localStorage.setItem('games_draft', JSON.stringify(games));
+}
+
+// ── Move / Delete ─────────────────────────────
+function moveUp(i)   { if(i>0){[games[i-1],games[i]]=[games[i],games[i-1]];markDirty();renderAll();togglePanel(i-1)} }
+function moveDown(i) { if(i<games.length-1){[games[i],games[i+1]]=[games[i+1],games[i]];markDirty();renderAll();togglePanel(i+1)} }
+function deleteGame(i) {
+  if(!confirm(`"${games[i].nameKo}" 삭제하시겠어요?`)) return;
+  games.splice(i,1); markDirty(); renderAll();
+}
+
+// ── Add game ──────────────────────────────────
+function toggleAdd() {
+  const p = document.getElementById('add-panel');
+  p.classList.toggle('open');
+}
+function addGame() {
+  const repo   = document.getElementById('new-repo').value.trim();
+  const nameKo = document.getElementById('new-nameko').value.trim();
+  const nameEn = document.getElementById('new-nameen').value.trim();
+  const url    = document.getElementById('new-url').value.trim();
+  if (!repo || !nameKo) { toast('레포명과 한글명은 필수입니다', 'err'); return; }
+  games.push({ repo, nameKo, nameEn: nameEn || repo, desc: '', emoji: '🎮',
+    url: url || `https://drayage.github.io/${repo}/`,
+    status: 'wip', completion: 0, genre: '기타', single: true, online: 0, onlineOnly: false });
+  markDirty(); renderAll();
+  toggleAdd();
+  ['new-repo','new-nameko','new-nameen','new-url'].forEach(id => document.getElementById(id).value='');
+  toast(`"${nameKo}" 추가됨`, 'ok');
+}
+
+// ── Preview ───────────────────────────────────
+let previewIndex = 0;
+function togglePreview() {
+  const w = document.getElementById('preview-wrap');
+  w.classList.toggle('open');
+  document.getElementById('preview-toggle-btn').textContent = w.classList.contains('open') ? '▤ 미리보기 닫기' : '▤ 미리보기';
+}
+function previewGame(i) {
+  previewIndex = i;
+  const w = document.getElementById('preview-wrap');
+  if (!w.classList.contains('open')) togglePreview();
+  updatePreview();
+  w.scrollIntoView({behavior:'smooth'});
+}
+function updatePreview() {
+  const w = document.getElementById('preview-wrap');
+  if (!w.classList.contains('open') || !games.length) return;
+  const g = games[Math.min(previewIndex, games.length-1)];
+  const cols = { done:['#1a5e38','#4caf80'], beta:['#1a3a7a','#5580cc'], wip:['#5a3010','#e08030'], stop:['#1e1535','#6655aa'] };
+  const [c1,c2] = cols[g.status] || cols.wip;
+  const playerTags = g.onlineOnly
+    ? `<span class="tag tag-online-only">온라인 전용 ${g.online}인</span>`
+    : `${g.single?'<span class="tag tag-single">싱글</span>':''}${g.online>0?`<span class="tag tag-online">온라인 ${g.online}인</span>`:''}`;
+  document.getElementById('preview-card').innerHTML = `
+    <div class="preview-top">
+      <div class="preview-icon">${g.emoji}</div>
+      <div>
+        <div class="preview-ko" style="color:${c2}">${g.nameKo||'이름 없음'}</div>
+        <div class="preview-en">${g.nameEn}</div>
+        <div class="preview-repo">${g.repo}</div>
+      </div>
+    </div>
+    <div class="preview-desc">${g.desc||'설명 없음'}</div>
+    <div class="preview-tags"><span class="tag tag-genre">${g.genre||'미분류'}</span>${playerTags}</div>
+    <div class="preview-row">
+      <div class="preview-bar"><div class="preview-fill" style="width:${g.completion}%;background:linear-gradient(90deg,${c1},${c2})"></div></div>
+      <span class="preview-pct" style="color:${c2}">${g.completion}%</span>
+      <span class="preview-badge" style="color:${c2};border:1px solid ${c1};background:${c1}22;padding:2px 8px;border-radius:3px;font-size:9px">${STATUS_LABELS[g.status]||g.status}</span>
+    </div>`;
+}
+
+// ── Download JSON ─────────────────────────────
+function downloadJSON() {
+  const blob = new Blob([JSON.stringify(games, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'games.json';
+  a.click();
+  toast('games.json 다운로드 완료', 'ok');
+}
+
+// ── GitHub Push ───────────────────────────────
+function loadToken() {
+  const t = localStorage.getItem('gh_token');
+  if (t) document.getElementById('gh-token').value = t;
+}
+async function pushToGitHub() {
+  const token  = document.getElementById('gh-token').value.trim();
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  if (!token) { toast('GitHub Token을 입력하세요', 'err'); return; }
+  localStorage.setItem('gh_token', token);
+
+  const btn = document.getElementById('push-btn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  toast('GitHub에 저장 중...', '');
+
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(games, null, 2))));
+  const headers = { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' };
+  const apiBase = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+
+  try {
+    // 현재 파일 SHA 가져오기
+    let sha = null;
+    const getRes = await fetch(`${apiBase}?ref=${branch}`, { headers });
+    if (getRes.ok) { const data = await getRes.json(); sha = data.sha; }
+
+    // 파일 업데이트
+    const body = { message: `Update games.json via editor`, content, branch };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiBase, { method:'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const err = await putRes.json();
+      throw new Error(err.message || putRes.statusText);
+    }
+    dirty = false;
+    document.getElementById('save-hint').style.display = 'none';
+    localStorage.removeItem('games_draft');
+    toast('GitHub 저장 완료! ✓', 'ok');
+  } catch(e) {
+    toast('저장 실패: ' + e.message, 'err');
+  }
+  btn.disabled = false;
+  btn.textContent = '↑ GitHub 저장';
+}
+
+// ── Toast ─────────────────────────────────────
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+// ── Init ──────────────────────────────────────
+loadGames();
+</script>
+</body>
+</html>
