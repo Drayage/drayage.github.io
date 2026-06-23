@@ -147,11 +147,20 @@ async function loadIcon(card, g) {
     const res = await fetch(base + '/manifest.json');
     if (!res.ok) return;
     const manifest = await res.json();
+    // purpose가 "maskable"만 있는 건 제외, "any maskable" / "any" / 없음은 허용
     const icons = (manifest.icons || [])
-      .filter(i => i.src && !/maskable/i.test(i.purpose || ''))
-      .sort((a, b) => (parseInt((b.sizes||'0'))||0) - (parseInt((a.sizes||'0'))||0));
-    if (!icons.length) return;
-    let src = icons[0].src;
+      .filter(i => i.src && (i.purpose || 'any').toLowerCase().includes('any'))
+      .sort((a, b) => {
+        const sa = parseInt((a.sizes||'0x0').split('x')[0]) || 0;
+        const sb = parseInt((b.sizes||'0x0').split('x')[0]) || 0;
+        return sb - sa;
+      });
+    // any 없으면 purpose 상관없이 그냥 제일 큰 거
+    const fallback = (manifest.icons || [])
+      .sort((a,b) => (parseInt((b.sizes||'0x0').split('x')[0])||0) - (parseInt((a.sizes||'0x0').split('x')[0])||0));
+    const picked = (icons.length ? icons : fallback)[0];
+    if (!picked) return;
+    let src = picked.src;
     if (!src.startsWith('http')) src = src.startsWith('/') ? url.origin + src : base + '/' + src.replace(/^\.\//, '');
     const img = new Image();
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;';
